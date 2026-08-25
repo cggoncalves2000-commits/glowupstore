@@ -56,22 +56,8 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
 
-function extractHandle(url: string): string | null {
-  try {
-    const u = new URL(url);
-    const parts = u.pathname.split("/").filter(Boolean);
-    return parts[parts.length - 1] || null;
-  } catch {
-    return null;
-  }
-}
-
 export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProduct> {
-  const proxyUrl = `/api/scrape?url=${encodeURIComponent(url)}`;
-  const res = await fetch(proxyUrl);
-  if (!res.ok) throw new Error("Nao foi possivel acessar a pagina do produto.");
-
-  const html = await res.text();
+  const html = await fetchScrapePage(url);
 
   const jsonLd = parseJsonLd(html);
   if (jsonLd && jsonLd.title) return jsonLd;
@@ -80,4 +66,22 @@ export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProd
   if (og && og.title) return og;
 
   throw new Error("Nao foi possivel extrair as informacoes do produto. Verifique se o link e de um produto Nuvemshop.");
+}
+
+async function fetchScrapePage(url: string): Promise<string> {
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+      if (res.ok) return await res.text();
+    } catch {
+      continue;
+    }
+  }
+
+  throw new Error("Nao foi possivel acessar a pagina do produto. Tente novamente.");
 }
