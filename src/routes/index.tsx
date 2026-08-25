@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { ArrowRight, Loader2, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight, Loader2, ShieldCheck, Sparkles, Star, Truck, Heart, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -12,6 +12,9 @@ import { CATEGORIES, whatsappLink } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
 import heroImage from "@/assets/hero-glow.jpg";
 import offerBanner from "@/assets/offer-banner.jpg";
+import carrosel1 from "@/assets/carrosel 1.jpeg";
+import carrosel2 from "@/assets/carrosel 2.jpeg";
+import carrosel3 from "@/assets/carrosel 3.jpeg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,7 +29,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Produtos de beleza selecionados com curadoria. Compre pelo site ou peça pelo WhatsApp.",
+          "Produtos de beleza selecionados com curadoria. Compre pelo site ou peca pelo WhatsApp.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -35,16 +38,72 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+const HERO_SLIDES = [
+  { src: heroImage, alt: "Modelo com pele radiante em iluminacao vinho e rosa" },
+  { src: carrosel1, alt: "Carrossel de produtos de beleza 1" },
+  { src: carrosel2, alt: "Carrossel de produtos de beleza 2" },
+  { src: carrosel3, alt: "Carrossel de produtos de beleza 3" },
+];
+
 const BENEFITS = [
   { icon: ShieldCheck, title: "100% originais", text: "Marcas autorizadas" },
-  { icon: Sparkles, title: "Curadoria própria", text: "Testado antes de vender" },
-  { icon: Truck, title: "Envio rápido", text: "Para todo o Brasil" },
+  { icon: Sparkles, title: "Curadoria propria", text: "Testado antes de vender" },
+  { icon: Truck, title: "Envio rapido", text: "Para todo o Brasil" },
   { icon: Star, title: "Atendimento humano", text: "Direto no WhatsApp" },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Ana Clara",
+    initials: "AC",
+    rating: 5,
+    text: "Amei o protetor solar! Textura leve, nao deixa pele branca. Chegou super rapido.",
+    product: "Protetor Solar Facial",
+  },
+  {
+    name: "Juliana M.",
+    initials: "JM",
+    rating: 5,
+    text: "O creme para cabelo que eu precisava. Cabelo macio e sem frizz no primeiro uso!",
+    product: "Creme Pentear Sem Enxague",
+  },
+  {
+    name: "Camila R.",
+    initials: "CR",
+    rating: 5,
+    text: "Atendimento incrivel no WhatsApp. Me ajudou a montar minha rotina inteira. Super recomendo!",
+    product: "Rotina Personalizada",
+  },
 ];
 
 function Home() {
   useCartSync();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval>>(null);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentSlide(index);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 7000);
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    goToSlide((currentSlide + 1) % HERO_SLIDES.length);
+  }, [currentSlide, goToSlide]);
+
+  const prevSlide = useCallback(() => {
+    goToSlide((currentSlide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  }, [currentSlide, goToSlide]);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 7000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
@@ -73,10 +132,14 @@ function Home() {
 
       {/* HERO */}
       <section className="surface-ink relative overflow-hidden">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-16 pt-14 md:grid-cols-2 md:px-8 md:pb-24 md:pt-20">
-          <div>
+        {/* Decorative gradient orbs */}
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-rose/10 blur-[100px]" />
+        <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-wine/20 blur-[100px]" />
+
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-16 pt-14 md:grid-cols-2 md:px-8 md:pb-24 md:pt-20">
+          <div className="animate-fade-in-up">
             <span className="eyebrow inline-block border border-rose/40 px-3 py-1 text-rose-soft">
-              Nova coleção · Glow diário
+              Nova colecao - Glow diario
             </span>
             <h1 className="mt-6 font-display text-5xl leading-[1.05] md:text-7xl">
               Sua rotina de beleza,
@@ -87,7 +150,11 @@ function Home() {
               com aquele toque de luxo no dia a dia.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="bg-rose text-accent-foreground hover:bg-rose/90">
+              <Button
+                asChild
+                size="lg"
+                className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:shadow-rose/30 hover:-translate-y-0.5"
+              >
                 <a href="#destaques">
                   Ver produtos
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -97,7 +164,7 @@ function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-ink-foreground/30 bg-transparent text-ink-foreground hover:bg-ink-foreground/10 hover:text-ink-foreground"
+                className="border-ink-foreground/30 bg-transparent text-ink-foreground transition-all duration-300 hover:border-ink-foreground/60 hover:bg-ink-foreground/10 hover:text-ink-foreground"
               >
                 <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
                   Comprar pelo WhatsApp
@@ -106,15 +173,53 @@ function Home() {
             </div>
           </div>
 
-          <div className="relative">
-            <img
-              src={heroImage}
-              alt="Modelo com pele radiante em iluminação vinho e rosa"
-              width={1408}
-              height={1600}
-              className="h-[380px] w-full object-cover object-top md:h-[560px]"
-            />
-            <div className="absolute -bottom-6 left-6 hidden bg-background px-6 py-4 shadow-luxe md:block">
+          <div className="relative animate-slide-in-right">
+            <div className="relative h-[380px] overflow-hidden rounded-lg shadow-2xl md:h-[560px]">
+              {HERO_SLIDES.map((slide, i) => (
+                <img
+                  key={i}
+                  src={slide.src}
+                  alt={slide.alt}
+                  width={1408}
+                  height={1600}
+                  className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-700 ease-in-out ${
+                    i === currentSlide ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ))}
+
+              {/* Arrows */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-white backdrop-blur-sm transition-all duration-300 hover:bg-ink/70 hover:scale-110"
+                aria-label="Anterior"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-white backdrop-blur-sm transition-all duration-300 hover:bg-ink/70 hover:scale-110"
+                aria-label="Proximo"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+
+              {/* Dots */}
+              <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+                {HERO_SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goToSlide(i)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      i === currentSlide ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/75"
+                    }`}
+                    aria-label={`Slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute -bottom-6 left-6 animate-fade-in delay-500 hidden bg-background px-6 py-4 shadow-luxe md:block">
               <p className="font-display text-3xl text-primary">+2 mil</p>
               <p className="eyebrow text-muted-foreground">clientes atendidas</p>
             </div>
@@ -122,12 +227,17 @@ function Home() {
         </div>
       </section>
 
-      {/* BENEFÍCIOS */}
+      {/* BENEFICIOS */}
       <section className="border-b border-border bg-sand">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 md:grid-cols-4 md:px-8">
-          {BENEFITS.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex items-start gap-3">
-              <Icon className="mt-0.5 h-5 w-5 text-accent" />
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-10 md:grid-cols-4 md:gap-6 md:px-8">
+          {BENEFITS.map(({ icon: Icon, title, text }, i) => (
+            <div
+              key={title}
+              className={`group flex items-start gap-3 animate-fade-in-up delay-${(i + 1) * 100}`}
+            >
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:scale-110">
+                <Icon className="h-5 w-5" />
+              </div>
               <div>
                 <p className="text-sm font-medium">{title}</p>
                 <p className="text-xs text-muted-foreground">{text}</p>
@@ -152,15 +262,22 @@ function Home() {
               <button
                 key={cat.query}
                 onClick={() => setActiveCategory(active ? null : cat.query)}
-                className={`group border p-5 text-left transition-colors ${
+                className={`group relative overflow-hidden border p-5 text-left transition-all duration-300 ${
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card hover:border-accent"
+                    ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                    : "border-border bg-card hover:border-accent hover:shadow-card-hover hover:-translate-y-0.5"
                 }`}
               >
-                <p className="font-display text-2xl">{cat.label}</p>
+                <div
+                  className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${
+                    active
+                      ? "bg-gradient-to-br from-primary/20 to-transparent"
+                      : "bg-gradient-to-br from-accent/5 to-transparent group-hover:opacity-100"
+                  }`}
+                />
+                <p className="relative font-display text-2xl">{cat.label}</p>
                 <p
-                  className={`mt-1 text-xs ${active ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                  className={`relative mt-1 text-xs ${active ? "text-primary-foreground/70" : "text-muted-foreground"}`}
                 >
                   {cat.description}
                 </p>
@@ -180,7 +297,7 @@ function Home() {
             </h2>
           </div>
           {activeCategory && (
-            <Button variant="ghost" onClick={() => setActiveCategory(null)}>
+            <Button variant="ghost" onClick={() => setActiveCategory(null)} className="text-accent">
               Limpar filtro
             </Button>
           )}
@@ -188,8 +305,17 @@ function Home() {
 
         <div className="mt-8">
           {isLoading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-accent" />
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-4/5 bg-secondary" />
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 w-3/4 rounded bg-secondary" />
+                    <div className="h-3 w-1/2 rounded bg-secondary" />
+                    <div className="h-8 rounded bg-secondary" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : filtered.length === 0 ? (
             <div className="border border-dashed border-border py-20 text-center">
@@ -197,13 +323,19 @@ function Home() {
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
                 {activeCategory
                   ? "Nenhum produto nessa categoria ainda."
-                  : "Sua loja ainda não tem produtos cadastrados."}
+                  : "Sua loja ainda nao tem produtos cadastrados."}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {filtered.map((product) => (
-                <ProductCard key={product.node.id} product={product} />
+              {filtered.map((product, i) => (
+                <div
+                  key={product.node.id}
+                  className={`animate-fade-in-up`}
+                  style={{ animationDelay: `${Math.min(i * 80, 400)}ms` }}
+                >
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
           )}
@@ -212,30 +344,38 @@ function Home() {
 
       {/* OFERTAS */}
       <section id="ofertas" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden rounded-lg">
           <img
             src={offerBanner}
-            alt="Frascos de skincare em tons de vinho sobre mármore bege"
+            alt="Frascos de skincare em tons de vinho sobre marmore bege"
             width={1600}
             height={704}
             loading="lazy"
-            className="h-[280px] w-full object-cover md:h-[340px]"
+            className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
           />
-          <div className="absolute inset-0 flex flex-col justify-center gap-4 bg-gradient-to-r from-ink/80 via-ink/40 to-transparent px-6 md:px-14">
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
+          <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
             <span className="eyebrow text-rose-soft">Ofertas da semana</span>
             <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
-              Kits selecionados com condições especiais
+              Kits selecionados com condicoes especiais
             </h2>
             <div className="flex flex-wrap gap-3">
-              <Button asChild className="bg-rose text-accent-foreground hover:bg-rose/90">
+              <Button
+                asChild
+                className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
+              >
                 <a href="#destaques">Ver ofertas</a>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="border-ink-foreground/40 bg-transparent text-ink-foreground hover:bg-ink-foreground/10 hover:text-ink-foreground"
+                className="border-ink-foreground/40 bg-transparent text-ink-foreground transition-all duration-300 hover:border-ink-foreground/70 hover:bg-ink-foreground/10 hover:text-ink-foreground"
               >
-                <a href={whatsappLink("Oi! Quero saber as ofertas da semana da Glow Up Store 💖")} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={whatsappLink("Oi! Quero saber as ofertas da semana da Glow Up Store")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Pedir no WhatsApp
                 </a>
               </Button>
@@ -244,52 +384,75 @@ function Home() {
         </div>
       </section>
 
-      {/* AVALIAÇÕES */}
+      {/* AVALIACOES */}
       <section id="avaliacoes" className="mx-auto max-w-7xl px-4 pb-4 md:px-8">
-        <span className="eyebrow text-accent">Avaliações</span>
+        <span className="eyebrow text-accent">Avaliacoes</span>
         <h2 className="mt-2 font-display text-4xl md:text-5xl">O que dizem as clientes</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="border border-dashed border-border bg-card p-6">
-              <div className="flex gap-1 text-muted-foreground">
-                {[0, 1, 2, 3, 4].map((s) => (
-                  <Star key={s} className="h-4 w-4" />
+          {TESTIMONIALS.map((t, i) => (
+            <div
+              key={i}
+              className={`group relative border border-border bg-card p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up`}
+              style={{ animationDelay: `${i * 150}ms` }}
+            >
+              <Quote className="absolute right-4 top-4 h-8 w-8 text-accent/10 transition-colors duration-300 group-hover:text-accent/25" />
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-accent to-primary text-sm font-medium text-accent-foreground">
+                  {t.initials}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.product}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-0.5">
+                {Array.from({ length: t.rating }).map((_, s) => (
+                  <Star key={s} className="h-4 w-4 fill-accent text-accent" />
                 ))}
               </div>
-              <p className="mt-4 text-sm text-muted-foreground">Ainda não há avaliações.</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t.text}</p>
             </div>
           ))}
         </div>
         <p className="mt-4 text-xs text-muted-foreground">
-          As avaliações aparecem aqui conforme as clientes reais enviarem seus depoimentos.
+          As avaliacoes aparecem aqui conforme as clientes reais enviarem seus depoimentos.
         </p>
       </section>
 
       {/* DUAS FORMAS DE COMPRAR */}
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="surface-ink flex flex-col justify-between gap-6 p-8 md:p-12">
-            <div>
-              <span className="eyebrow text-rose-soft">Opção 1</span>
+          <div className="surface-ink group relative flex flex-col justify-between gap-6 overflow-hidden p-8 transition-all duration-300 hover:shadow-2xl md:p-12">
+            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-rose/10 blur-[60px] transition-all duration-500 group-hover:bg-rose/20" />
+            <div className="relative">
+              <span className="eyebrow text-rose-soft">Opcao 1</span>
               <h3 className="mt-3 font-display text-3xl md:text-4xl">Comprar pelo site</h3>
               <p className="mt-3 text-sm text-ink-foreground/70">
-                Escolha, adicione à sacola e finalize com checkout seguro da Shopify. Rápido e sem
+                Escolha, adicione a sacola e finalize com checkout seguro da Shopify. Rapido e sem
                 conversa.
               </p>
             </div>
-            <Button asChild className="w-fit bg-rose text-accent-foreground hover:bg-rose/90">
+            <Button
+              asChild
+              className="relative w-fit bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
+            >
               <a href="#destaques">Ver produtos</a>
             </Button>
           </div>
-          <div className="flex flex-col justify-between gap-6 border border-border bg-card p-8 md:p-12">
-            <div>
-              <span className="eyebrow text-accent">Opção 2</span>
+          <div className="group relative flex flex-col justify-between gap-6 overflow-hidden border border-border bg-card p-8 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 md:p-12">
+            <div className="absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-accent/5 blur-[60px] transition-all duration-500 group-hover:bg-accent/10" />
+            <div className="relative">
+              <span className="eyebrow text-accent">Opcao 2</span>
               <h3 className="mt-3 font-display text-3xl md:text-4xl">Falar no WhatsApp</h3>
               <p className="mt-3 text-sm text-muted-foreground">
-                Prefere indicação personalizada? Me chama que eu te ajudo a montar sua rotina ideal.
+                Prefere indicacao personalizada? Me chama que eu te ajudo a montar sua rotina ideal.
               </p>
             </div>
-            <Button asChild variant="outline" className="w-fit">
+            <Button
+              asChild
+              variant="outline"
+              className="relative w-fit transition-all duration-300 hover:border-accent hover:bg-accent/10 hover:text-accent hover:-translate-y-0.5"
+            >
               <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
                 Chamar no WhatsApp
               </a>

@@ -28,14 +28,14 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
       quantity: 1,
       selectedOptions: selectedVariant.selectedOptions || [],
     });
-    toast.success("Adicionado à sacola", {
+    toast.success("Adicionado a sacola", {
       description: node.title,
       position: "top-center",
     });
   };
 
   return (
-    <article className="group flex flex-col border border-border bg-card">
+    <article className="group relative flex flex-col border border-border bg-card transition-all duration-500 hover:shadow-card-hover hover:-translate-y-1">
       <Link
         to="/produto/$handle"
         params={{ handle: node.handle }}
@@ -46,15 +46,19 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
             src={image.url}
             alt={image.altText ?? node.title}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
             sem imagem
           </div>
         )}
+
+        {/* Gradient overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+
         {hasDiscount && (
-          <span className="eyebrow absolute left-0 top-4 bg-accent px-3 py-1 text-accent-foreground">
+          <span className="eyebrow absolute left-0 top-4 bg-accent px-3 py-1 text-accent-foreground shadow-lg">
             Oferta
           </span>
         )}
@@ -63,11 +67,18 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
             Esgotado
           </span>
         )}
+
+        {/* Quick view hint on hover */}
+        <span className="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white opacity-0 transition-all duration-300 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0">
+          Ver detalhes
+        </span>
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
         <Link to="/produto/$handle" params={{ handle: node.handle }} className="flex-1">
-          <h3 className="font-display text-xl leading-snug">{node.title}</h3>
+          <h3 className="font-display text-xl leading-snug transition-colors duration-300 group-hover:text-accent">
+            {node.title}
+          </h3>
           <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{node.description}</p>
         </Link>
 
@@ -86,7 +97,7 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           <Button
             onClick={handleAddToCart}
             disabled={isLoading || !selectedVariant?.availableForSale}
-            className="flex-1"
+            className="flex-1 transition-all duration-300 hover:shadow-glow-rose"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -97,9 +108,15 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
               </>
             )}
           </Button>
-          <Button asChild variant="outline" size="icon" aria-label="Perguntar no WhatsApp">
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            aria-label="Perguntar no WhatsApp"
+            className="transition-all duration-300 hover:border-whatsapp hover:bg-whatsapp/10 hover:text-whatsapp"
+          >
             <a
-              href={whatsappLink(`Oi! Tenho interesse no produto "${node.title}" ✨`)}
+              href={whatsappLink(`Oi! Tenho interesse no produto "${node.title}"`)}
               target="_blank"
               rel="noopener noreferrer"
             >
