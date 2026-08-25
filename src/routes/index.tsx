@@ -8,7 +8,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { ProductCard } from "@/components/ProductCard";
 import { AdminProductCard } from "@/components/AdminProductCard";
-import { useAdminStore, DEFAULT_PRODUCTS } from "@/stores/adminStore";
+import { useAdminStore } from "@/stores/adminStore";
 import { fetchProducts } from "@/lib/shopify";
 import { CATEGORIES, whatsappLink } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
@@ -132,13 +132,7 @@ function Home() {
     queryFn: () => fetchProducts(24),
   });
 
-  const rawAdminProducts = useAdminStore((s) => s.products);
-
-  const adminProducts = useMemo(() => {
-    const userProductIds = new Set(rawAdminProducts.map((p) => p.id));
-    const defaults = DEFAULT_PRODUCTS.filter((p) => !userProductIds.has(p.id));
-    return [...rawAdminProducts, ...defaults];
-  }, [rawAdminProducts]);
+  const adminProducts = useAdminStore((s) => s.products);
 
   useEffect(() => {
     const el = document.getElementById(activeSection);
