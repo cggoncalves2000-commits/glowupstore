@@ -67,15 +67,22 @@ export function SiteFooter() {
             <li className="flex items-center gap-2">
               <Mail className="h-3.5 w-3.5" /> {SITE.email}
             </li>
-            <li className="flex items-center gap-2">
-              <Instagram className="h-3.5 w-3.5" /> {SITE.instagram}
+            <li>
+              <a
+                href="https://www.instagram.com/glow_wupstore/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 transition-colors duration-300 hover:text-accent"
+              >
+                <Instagram className="h-3.5 w-3.5" /> {SITE.instagram}
+              </a>
             </li>
           </ul>
         </div>
         <div>
           <p className="eyebrow text-ink-foreground/50">Compra segura</p>
           <p className="mt-4 text-sm text-ink-foreground/70">
-            Checkout processado pela Shopify, com pagamento protegido e envio para todo o Brasil.
+            Checkout processado pela Nuvemshop, com pagamento protegido e envio para todo o Brasil.
           </p>
           <div className="mt-4 flex items-center gap-2 text-xs text-ink-foreground/50">
             <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
