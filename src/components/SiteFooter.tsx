@@ -31,7 +31,7 @@ export function SiteFooter() {
               </svg>
             </a>
             <a
-              href={`https://instagram.com/${SITE.instagram.replace("@", "")}`}
+              href="https://www.instagram.com/glow_wupstore/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-foreground/15 text-ink-foreground/60 transition-all duration-300 hover:border-accent hover:bg-accent hover:text-accent-foreground"

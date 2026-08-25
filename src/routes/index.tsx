@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Loader2, ShieldCheck, Sparkles, Star, Truck, Heart, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SiteHeader, type SectionId } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { ProductCard } from "@/components/ProductCard";
@@ -100,6 +100,7 @@ const TESTIMONIALS = [
 function Home() {
   useCartSync();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<SectionId>("destaques");
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
 
@@ -151,7 +152,7 @@ function Home() {
 
   return (
     <div className="min-h-screen">
-      <SiteHeader />
+      <SiteHeader activeSection={activeSection} onNavigate={setActiveSection} />
 
       {/* HERO */}
       <section className="bg-sand">
@@ -223,7 +224,7 @@ function Home() {
       </section>
 
       {/* DESTAQUES */}
-      {adminProducts.filter((p) => p.available && p.featured).length > 0 && (
+      {activeSection === "destaques" && (
         <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
           <div className="flex items-end justify-between gap-4">
             <div>
@@ -248,170 +249,137 @@ function Home() {
       )}
 
       {/* CATEGORIAS */}
-      <section id="categorias" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <span className="eyebrow text-accent">Categorias</span>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">Escolha por necessidade</h2>
+      {activeSection === "categorias" && (
+        <section id="categorias" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <span className="eyebrow text-accent">Categorias</span>
+              <h2 className="mt-2 font-display text-4xl md:text-5xl">Escolha por necessidade</h2>
+            </div>
           </div>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-5">
-          {CATEGORIES.map((cat) => {
-            const active = activeCategory === cat.query;
-            return (
-              <button
-                key={cat.query}
-                onClick={() => setActiveCategory(active ? null : cat.query)}
-                className={`rounded-full border px-4 py-3 text-left text-sm font-medium transition-all duration-200 ${
-                  active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-background text-foreground hover:border-accent hover:bg-accent/5"
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* PRODUTOS */}
-      <section id="destaques" className="mx-auto max-w-7xl px-4 pb-6 md:px-8">
-        <div className="flex flex-wrap items-end justify-end gap-4">
-          {activeCategory && (
-            <Button variant="ghost" onClick={() => setActiveCategory(null)} className="text-accent">
-              Limpar filtro
-            </Button>
-          )}
-        </div>
-
-        <div className="mt-8">
-          {isLoading ? (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-4/5 bg-secondary" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 w-3/4 rounded bg-secondary" />
-                    <div className="h-3 w-1/2 rounded bg-secondary" />
-                    <div className="h-8 rounded bg-secondary" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filtered.length === 0 && adminProducts.filter((p) => p.available).length === 0 ? (
-            <div className="border border-dashed border-border py-20 text-center">
-              <p className="font-display text-2xl">Nenhum produto encontrado</p>
-              <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                {activeCategory
-                  ? "Nenhum produto nessa categoria ainda."
-                  : "Sua loja ainda nao tem produtos cadastrados."}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {filtered.map((product, i) => (
-                <div
-                  key={product.node.id}
-                  className={`animate-fade-in-up`}
-                  style={{ animationDelay: `${Math.min(i * 80, 400)}ms` }}
+          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-5">
+            {CATEGORIES.map((cat) => {
+              const active = activeCategory === cat.query;
+              return (
+                <button
+                  key={cat.query}
+                  onClick={() => setActiveCategory(active ? null : cat.query)}
+                  className={`rounded-full border px-4 py-3 text-left text-sm font-medium transition-all duration-200 ${
+                    active
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-foreground hover:border-accent hover:bg-accent/5"
+                  }`}
                 >
-                  <ProductCard product={product} />
-                </div>
-              ))}
-              {adminProducts
-                .filter((p) => p.available)
-                .filter((p) => {
-                  if (!activeCategory) return true;
-                  return p.category === activeCategory;
-                })
-                .map((product, i) => (
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Produtos filtrados por categoria */}
+          <div className="mt-8">
+            {activeCategory && (
+              <div className="mb-4 flex justify-end">
+                <Button variant="ghost" onClick={() => setActiveCategory(null)} className="text-accent">
+                  Limpar filtro
+                </Button>
+              </div>
+            )}
+            {activeCategory && (
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {filtered.map((product, i) => (
                   <div
-                    key={product.id}
+                    key={product.node.id}
                     className="animate-fade-in-up"
-                    style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
+                    style={{ animationDelay: `${Math.min(i * 80, 400)}ms` }}
                   >
-                    <AdminProductCard product={product} />
+                    <ProductCard product={product} />
                   </div>
                 ))}
-            </div>
-          )}
-        </div>
-      </section>
+                {adminProducts
+                  .filter((p) => p.available)
+                  .filter((p) => p.category === activeCategory)
+                  .map((product, i) => (
+                    <div
+                      key={product.id}
+                      className="animate-fade-in-up"
+                      style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
+                    >
+                      <AdminProductCard product={product} />
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* OFERTAS */}
-      <section id="ofertas" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-        <div className="relative overflow-hidden rounded-lg">
-          <img
-            src={offerBanner}
-            alt="Frascos de skincare em tons de vinho sobre marmore bege"
-            width={1600}
-            height={704}
-            loading="lazy"
-            className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
-          <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
-            <span className="eyebrow text-rose-soft">Ofertas da semana</span>
-            <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
-              Kits selecionados com condicoes especiais
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                asChild
-                className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
-              >
-                <a href="#destaques">Ver ofertas</a>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="border-ink-foreground/40 bg-transparent text-ink-foreground transition-all duration-300 hover:border-ink-foreground/70 hover:bg-ink-foreground/10 hover:text-ink-foreground"
-              >
-                <a
-                  href={whatsappLink("Oi! Quero saber as ofertas da semana da Glow Up Store")}
-                  target="_blank"
-                  rel="noopener noreferrer"
+      {activeSection === "ofertas" && (
+        <section id="ofertas" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+          <div className="relative overflow-hidden rounded-lg">
+            <img
+              src={offerBanner}
+              alt="Frascos de skincare em tons de vinho sobre marmore bege"
+              width={1600}
+              height={704}
+              loading="lazy"
+              className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
+              <span className="eyebrow text-rose-soft">Ofertas da semana</span>
+              <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
+                Kits selecionados com condicoes especiais
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  asChild
+                  className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
                 >
-                  Pedir no WhatsApp
-                </a>
-              </Button>
+                  <a href={whatsappLink("Oi! Quero saber as ofertas da semana da Glow Up Store")} target="_blank" rel="noopener noreferrer">
+                    Ver ofertas
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* AVALIACOES */}
-      <section id="avaliacoes" className="mx-auto max-w-7xl px-4 pb-4 md:px-8">
-        <span className="eyebrow text-accent">Avaliacoes</span>
-        <h2 className="mt-2 font-display text-4xl md:text-5xl">O que dizem as clientes</h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <div
-              key={i}
-              className={`group relative border border-border bg-card p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up`}
-              style={{ animationDelay: `${i * 150}ms` }}
-            >
-              <Quote className="absolute right-4 top-4 h-8 w-8 text-accent/10 transition-colors duration-300 group-hover:text-accent/25" />
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-accent to-primary text-sm font-medium text-accent-foreground">
-                  {t.initials}
+      {activeSection === "avaliacoes" && (
+        <section id="avaliacoes" className="mx-auto max-w-7xl px-4 pb-4 md:px-8">
+          <span className="eyebrow text-accent">Avaliacoes</span>
+          <h2 className="mt-2 font-display text-4xl md:text-5xl">O que dizem as clientes</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {TESTIMONIALS.map((t, i) => (
+              <div
+                key={i}
+                className={`group relative border border-border bg-card p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up`}
+                style={{ animationDelay: `${i * 150}ms` }}
+              >
+                <Quote className="absolute right-4 top-4 h-8 w-8 text-accent/10 transition-colors duration-300 group-hover:text-accent/25" />
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-accent to-primary text-sm font-medium text-accent-foreground">
+                    {t.initials}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.product}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.product}</p>
+                <div className="mt-3 flex gap-0.5">
+                  {Array.from({ length: t.rating }).map((_, s) => (
+                    <Star key={s} className="h-4 w-4 fill-accent text-accent" />
+                  ))}
                 </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t.text}</p>
               </div>
-              <div className="mt-3 flex gap-0.5">
-                {Array.from({ length: t.rating }).map((_, s) => (
-                  <Star key={s} className="h-4 w-4 fill-accent text-accent" />
-                ))}
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       <SiteFooter />
       <WhatsAppFloat />

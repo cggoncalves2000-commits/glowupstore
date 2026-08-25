@@ -1,17 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { CartDrawer } from "@/components/CartDrawer";
-import { Button } from "@/components/ui/button";
 import { SITE, whatsappLink } from "@/lib/site";
 import logo from "@/assets/favicon.jpg";
 
 const NAV = [
-  { label: "Destaques", href: "/#destaques" },
-  { label: "Categorias", href: "/#categorias" },
-  { label: "Ofertas", href: "/#ofertas" },
-  { label: "Avaliacoes", href: "/#avaliacoes" },
+  { label: "Destaques", id: "destaques" as const },
+  { label: "Categorias", id: "categorias" as const },
+  { label: "Ofertas", id: "ofertas" as const },
+  { label: "Avaliacoes", id: "avaliacoes" as const },
 ];
 
-export function SiteHeader() {
+export type SectionId = "destaques" | "categorias" | "ofertas" | "avaliacoes";
+
+interface SiteHeaderProps {
+  activeSection: SectionId;
+  onNavigate: (id: SectionId) => void;
+}
+
+export function SiteHeader({ activeSection, onNavigate }: SiteHeaderProps) {
   return (
     <header className="glass sticky top-0 z-40 border-b border-border/50">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-8">
@@ -27,29 +32,32 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 md:flex">
           {NAV.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="relative px-3 py-2 text-sm text-foreground/70 transition-colors hover:text-accent"
+            <button
+              key={item.id}
+              onClick={() => onNavigate(item.id)}
+              className={`relative px-3 py-2 text-sm transition-colors ${
+                activeSection === item.id ? "text-accent" : "text-foreground/70 hover:text-accent"
+              }`}
             >
               {item.label}
-              <span className="absolute bottom-0 left-3 right-3 h-0.5 scale-x-0 bg-accent transition-transform duration-300 group-hover:scale-x-100" />
-            </a>
+              <span
+                className={`absolute bottom-0 left-3 right-3 h-0.5 transition-transform duration-300 ${
+                  activeSection === item.id ? "scale-x-100 bg-accent" : "scale-x-0 bg-accent"
+                }`}
+              />
+            </button>
           ))}
         </nav>
 
         <div className="flex items-center gap-1">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="hidden border-accent/30 text-accent transition-all hover:border-accent hover:bg-accent/10 sm:inline-flex"
+          <a
+            href={whatsappLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden text-sm text-accent transition-colors hover:text-accent/80 sm:inline-flex"
           >
-            <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
-              WhatsApp
-            </a>
-          </Button>
-          <CartDrawer />
+            WhatsApp
+          </a>
         </div>
       </div>
     </header>
