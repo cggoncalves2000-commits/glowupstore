@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, Loader2, ShieldCheck, Sparkles, Star, Truck, Heart, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, ShieldCheck, Sparkles, Star, Truck, Heart, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -10,7 +10,6 @@ import { ProductCard } from "@/components/ProductCard";
 import { fetchProducts } from "@/lib/shopify";
 import { CATEGORIES, whatsappLink } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
-import heroImage from "@/assets/hero-glow.jpg";
 import offerBanner from "@/assets/offer-banner.jpg";
 import carrosel1 from "@/assets/carrosel 1.jpeg";
 import carrosel2 from "@/assets/carrosel 2.jpeg";
@@ -39,7 +38,6 @@ export const Route = createFileRoute("/")({
 });
 
 const HERO_SLIDES = [
-  { src: heroImage, alt: "Modelo com pele radiante em iluminacao vinho e rosa" },
   { src: carrosel1, alt: "Carrossel de produtos de beleza 1" },
   { src: carrosel2, alt: "Carrossel de produtos de beleza 2" },
   { src: carrosel3, alt: "Carrossel de produtos de beleza 3" },
@@ -131,98 +129,50 @@ function Home() {
       <SiteHeader />
 
       {/* HERO */}
-      <section className="surface-ink relative overflow-hidden">
-        {/* Decorative gradient orbs */}
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-rose/10 blur-[100px]" />
-        <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-wine/20 blur-[100px]" />
+      <section className="bg-sand">
+        <div className="relative mx-auto max-w-7xl">
+          {/* Image area */}
+          <div className="relative h-[500px] overflow-hidden rounded-lg md:h-[700px]">
+            {HERO_SLIDES.map((slide, i) => (
+              <img
+                key={i}
+                src={slide.src}
+                alt={slide.alt}
+                className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+                  i === currentSlide ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            ))}
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-16 pt-14 md:grid-cols-2 md:px-8 md:pb-24 md:pt-20">
-          <div className="animate-fade-in-up">
-            <span className="eyebrow inline-block border border-rose/40 px-3 py-1 text-rose-soft">
-              Nova colecao - Glow diario
-            </span>
-            <h1 className="mt-6 font-display text-5xl leading-[1.05] md:text-7xl">
-              Sua rotina de beleza,
-              <span className="block italic text-rose-soft">elevada.</span>
-            </h1>
-            <p className="mt-5 max-w-md text-sm leading-relaxed text-ink-foreground/70 md:text-base">
-              Skincare, cabelos, corpo e maquiagem escolhidos a dedo para quem quer resultado real —
-              com aquele toque de luxo no dia a dia.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:shadow-rose/30 hover:-translate-y-0.5"
-              >
-                <a href="#destaques">
-                  Ver produtos
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-ink-foreground/30 bg-transparent text-ink-foreground transition-all duration-300 hover:border-ink-foreground/60 hover:bg-ink-foreground/10 hover:text-ink-foreground"
-              >
-                <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
-                  Comprar pelo WhatsApp
-                </a>
-              </Button>
-            </div>
+            {/* Arrows */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/10 text-ink backdrop-blur-sm transition-all duration-300 hover:bg-ink/20 hover:scale-110 md:left-5"
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/10 text-ink backdrop-blur-sm transition-all duration-300 hover:bg-ink/20 hover:scale-110 md:right-5"
+              aria-label="Proximo"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
 
-          <div className="relative animate-slide-in-right">
-            <div className="relative h-[380px] overflow-hidden rounded-lg shadow-2xl md:h-[560px]">
-              {HERO_SLIDES.map((slide, i) => (
-                <img
-                  key={i}
-                  src={slide.src}
-                  alt={slide.alt}
-                  width={1408}
-                  height={1600}
-                  className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-700 ease-in-out ${
-                    i === currentSlide ? "opacity-100" : "opacity-0"
-                  }`}
-                />
-              ))}
-
-              {/* Arrows */}
+          {/* Dots */}
+          <div className="flex justify-center pb-6 pt-4">
+            {HERO_SLIDES.map((_, i) => (
               <button
-                onClick={prevSlide}
-                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-white backdrop-blur-sm transition-all duration-300 hover:bg-ink/70 hover:scale-110"
-                aria-label="Anterior"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-ink/50 text-white backdrop-blur-sm transition-all duration-300 hover:bg-ink/70 hover:scale-110"
-                aria-label="Proximo"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-
-              {/* Dots */}
-              <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
-                {HERO_SLIDES.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goToSlide(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      i === currentSlide ? "w-8 bg-white" : "w-2 bg-white/50 hover:bg-white/75"
-                    }`}
-                    aria-label={`Slide ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="absolute -bottom-6 left-6 animate-fade-in delay-500 hidden bg-background px-6 py-4 shadow-luxe md:block">
-              <p className="font-display text-3xl text-primary">+2 mil</p>
-              <p className="eyebrow text-muted-foreground">clientes atendidas</p>
-            </div>
+                key={i}
+                onClick={() => goToSlide(i)}
+                className={`mx-1 h-2 rounded-full transition-all duration-300 ${
+                  i === currentSlide ? "w-8 bg-accent" : "w-2 bg-ink/20 hover:bg-ink/40"
+                }`}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
