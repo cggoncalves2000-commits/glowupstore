@@ -57,7 +57,13 @@ function stripHtml(html: string): string {
 }
 
 export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProduct> {
-  const html = await fetchScrapePage(url);
+  const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(url)}`, {
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!res.ok) throw new Error("Nao foi possivel acessar a pagina do produto.");
+
+  const html = await res.text();
 
   const jsonLd = parseJsonLd(html);
   if (jsonLd && jsonLd.title) return jsonLd;
@@ -66,22 +72,4 @@ export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProd
   if (og && og.title) return og;
 
   throw new Error("Nao foi possivel extrair as informacoes do produto. Verifique se o link e de um produto Nuvemshop.");
-}
-
-async function fetchScrapePage(url: string): Promise<string> {
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  ];
-
-  for (const proxyUrl of proxies) {
-    try {
-      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
-      if (res.ok) return await res.text();
-    } catch {
-      continue;
-    }
-  }
-
-  throw new Error("Nao foi possivel acessar a pagina do produto. Tente novamente.");
 }
