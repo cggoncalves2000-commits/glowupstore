@@ -79,7 +79,10 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           <h3 className="font-display text-xl leading-snug transition-colors duration-300 group-hover:text-accent">
             {node.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{node.description}</p>
+          <div
+            className="mt-1 text-xs text-muted-foreground [&_p]:mb-1 [&_p]:last:mb-0"
+            dangerouslySetInnerHTML={{ __html: node.description }}
+          />
         </Link>
 
         <div className="mt-3 flex items-baseline gap-2">
@@ -93,7 +96,7 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           )}
         </div>
 
-        <div className="mt-4 flex gap-2">
+        <div className="mt-2 flex gap-2">
           <Button
             onClick={handleAddToCart}
             disabled={isLoading || !selectedVariant?.availableForSale}

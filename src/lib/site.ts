@@ -5,9 +5,9 @@
 export const SITE = {
   name: "Glow Up Store",
   tagline: "Beleza & Autocuidado",
-  whatsappNumber: "5511999999999",
-  email: "contato@glowupstore.com",
-  instagram: "@glowupstore",
+  whatsappNumber: "5511984217545",
+  email: "mattheus.belmiro@gmail.com",
+  instagram: "glow_wupstore",
 };
 
 export function whatsappLink(message?: string) {

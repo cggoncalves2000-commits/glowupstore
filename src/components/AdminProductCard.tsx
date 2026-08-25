@@ -42,7 +42,7 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
           <h3 className="font-display text-xl leading-snug transition-colors duration-300 group-hover:text-accent">
             {product.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             {product.description || "Sem descricao"}
           </p>
         </div>
@@ -53,7 +53,7 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
           </span>
         </div>
 
-        <div className="mt-4 flex gap-2">
+        <div className="mt-2 flex gap-2">
           <Button
             asChild
             className="flex-1 transition-all duration-300 hover:shadow-glow-rose"

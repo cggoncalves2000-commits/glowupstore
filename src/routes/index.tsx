@@ -74,6 +74,27 @@ const TESTIMONIALS = [
     text: "Atendimento incrivel no WhatsApp. Me ajudou a montar minha rotina inteira. Super recomendo!",
     product: "Rotina Personalizada",
   },
+  {
+    name: "Fernanda L.",
+    initials: "FL",
+    rating: 5,
+    text: "A maquiagem e incrivel! Cobertura perfeita e dura o dia todo. Ja indiquei para todas minhas amigas.",
+    product: "Base de Longa Duracao",
+  },
+  {
+    name: "Mariana S.",
+    initials: "MS",
+    rating: 5,
+    text: "Produto de altissima qualidade e entrega foi super rapida. Com certeza vou comprar de novo!",
+    product: "Kit Cuidados com a Pele",
+  },
+  {
+    name: "Patricia O.",
+    initials: "PO",
+    rating: 5,
+    text: "Melhor loja de beleza que ja comprei! Preco justo e produto chegou embalado com muito carinho.",
+    product: "Shampoo Nutritivo",
+  },
 ];
 
 function Home() {
@@ -201,6 +222,31 @@ function Home() {
         </div>
       </section>
 
+      {/* DESTAQUES */}
+      {adminProducts.filter((p) => p.available && p.featured).length > 0 && (
+        <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <span className="eyebrow text-accent">Destaques</span>
+              <h2 className="mt-2 font-display text-4xl md:text-5xl">Produtos em destaque</h2>
+            </div>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {adminProducts
+              .filter((p) => p.available && p.featured)
+              .map((product, i) => (
+                <div
+                  key={product.id}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${Math.min(i * 80, 400)}ms` }}
+                >
+                  <AdminProductCard product={product} />
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
+
       {/* CATEGORIAS */}
       <section id="categorias" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
         <div className="flex items-end justify-between gap-4">
@@ -216,25 +262,13 @@ function Home() {
               <button
                 key={cat.query}
                 onClick={() => setActiveCategory(active ? null : cat.query)}
-                className={`group relative overflow-hidden border p-5 text-left transition-all duration-300 ${
+                className={`rounded-full border px-4 py-3 text-left text-sm font-medium transition-all duration-200 ${
                   active
-                    ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                    : "border-border bg-card hover:border-accent hover:shadow-card-hover hover:-translate-y-0.5"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:border-accent hover:bg-accent/5"
                 }`}
               >
-                <div
-                  className={`absolute inset-0 opacity-0 transition-opacity duration-300 ${
-                    active
-                      ? "bg-gradient-to-br from-primary/20 to-transparent"
-                      : "bg-gradient-to-br from-accent/5 to-transparent group-hover:opacity-100"
-                  }`}
-                />
-                <p className="relative font-display text-2xl">{cat.label}</p>
-                <p
-                  className={`relative mt-1 text-xs ${active ? "text-primary-foreground/70" : "text-muted-foreground"}`}
-                >
-                  {cat.description}
-                </p>
+                {cat.label}
               </button>
             );
           })}
@@ -243,13 +277,7 @@ function Home() {
 
       {/* PRODUTOS */}
       <section id="destaques" className="mx-auto max-w-7xl px-4 pb-6 md:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span className="eyebrow text-accent">Em destaque</span>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">
-              {activeCategory ? `Filtrando: ${activeCategory}` : "Mais desejados"}
-            </h2>
-          </div>
+        <div className="flex flex-wrap items-end justify-end gap-4">
           {activeCategory && (
             <Button variant="ghost" onClick={() => setActiveCategory(null)} className="text-accent">
               Limpar filtro
@@ -271,7 +299,7 @@ function Home() {
                 </div>
               ))}
             </div>
-          ) : filtered.length === 0 && adminProducts.filter((p) => p.available && p.featured).length === 0 ? (
+          ) : filtered.length === 0 && adminProducts.filter((p) => p.available).length === 0 ? (
             <div className="border border-dashed border-border py-20 text-center">
               <p className="font-display text-2xl">Nenhum produto encontrado</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -292,7 +320,7 @@ function Home() {
                 </div>
               ))}
               {adminProducts
-                .filter((p) => p.available && p.featured)
+                .filter((p) => p.available)
                 .filter((p) => {
                   if (!activeCategory) return true;
                   return p.category === activeCategory;
@@ -382,51 +410,6 @@ function Home() {
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t.text}</p>
             </div>
           ))}
-        </div>
-        <p className="mt-4 text-xs text-muted-foreground">
-          As avaliacoes aparecem aqui conforme as clientes reais enviarem seus depoimentos.
-        </p>
-      </section>
-
-      {/* DUAS FORMAS DE COMPRAR */}
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="surface-ink group relative flex flex-col justify-between gap-6 overflow-hidden p-8 transition-all duration-300 hover:shadow-2xl md:p-12">
-            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-rose/10 blur-[60px] transition-all duration-500 group-hover:bg-rose/20" />
-            <div className="relative">
-              <span className="eyebrow text-rose-soft">Opcao 1</span>
-              <h3 className="mt-3 font-display text-3xl md:text-4xl">Comprar pelo site</h3>
-              <p className="mt-3 text-sm text-ink-foreground/70">
-                Escolha, adicione a sacola e finalize com checkout seguro da Shopify. Rapido e sem
-                conversa.
-              </p>
-            </div>
-            <Button
-              asChild
-              className="relative w-fit bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
-            >
-              <a href="#destaques">Ver produtos</a>
-            </Button>
-          </div>
-          <div className="group relative flex flex-col justify-between gap-6 overflow-hidden border border-border bg-card p-8 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 md:p-12">
-            <div className="absolute -left-16 -bottom-16 h-48 w-48 rounded-full bg-accent/5 blur-[60px] transition-all duration-500 group-hover:bg-accent/10" />
-            <div className="relative">
-              <span className="eyebrow text-accent">Opcao 2</span>
-              <h3 className="mt-3 font-display text-3xl md:text-4xl">Falar no WhatsApp</h3>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Prefere indicacao personalizada? Me chama que eu te ajudo a montar sua rotina ideal.
-              </p>
-            </div>
-            <Button
-              asChild
-              variant="outline"
-              className="relative w-fit transition-all duration-300 hover:border-accent hover:bg-accent/10 hover:text-accent hover:-translate-y-0.5"
-            >
-              <a href={whatsappLink()} target="_blank" rel="noopener noreferrer">
-                Chamar no WhatsApp
-              </a>
-            </Button>
-          </div>
         </div>
       </section>
 

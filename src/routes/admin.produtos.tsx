@@ -367,7 +367,7 @@ function AdminProdutos() {
               </div>
               <div className="flex flex-1 flex-col p-4">
                 <h3 className="font-display text-lg leading-snug">{p.title}</h3>
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {p.description || "Sem descricao"}
                 </p>
                 <div className="mt-auto flex items-center justify-between pt-3">
