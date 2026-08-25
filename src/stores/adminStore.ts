@@ -10,6 +10,7 @@ export interface AdminProduct {
   category: string;
   available: boolean;
   featured: boolean;
+  buyLink: string;
   createdAt: number;
 }
 

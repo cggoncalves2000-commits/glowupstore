@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef } from "react";
-import { Pencil, Plus, Star, Trash2, X } from "lucide-react";
+import { Loader2, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
 import { useAdminStore, type AdminProduct } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/lib/site";
+import { scrapeNuvemshopProduct } from "@/lib/nuvemshop";
 
 export const Route = createFileRoute("/admin/produtos")({
   component: AdminProdutos,
@@ -19,6 +20,7 @@ const EMPTY: Omit<AdminProduct, "id" | "createdAt"> = {
   category: "",
   available: true,
   featured: false,
+  buyLink: "",
 };
 
 function AdminProdutos() {
@@ -27,6 +29,9 @@ function AdminProdutos() {
   const [editing, setEditing] = useState<AdminProduct | null>(null);
   const [form, setForm] = useState(EMPTY);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const openNew = () => {
@@ -44,6 +49,8 @@ function AdminProdutos() {
       image: p.image,
       category: p.category,
       available: p.available,
+      featured: p.featured,
+      buyLink: p.buyLink || "",
     });
     setShowForm(true);
   };
@@ -58,6 +65,28 @@ function AdminProdutos() {
     const reader = new FileReader();
     reader.onload = () => setForm((f) => ({ ...f, image: reader.result as string }));
     reader.readAsDataURL(file);
+  };
+
+  const handleImport = async () => {
+    if (!importUrl.trim()) return;
+    setImporting(true);
+    setImportError("");
+    try {
+      const data = await scrapeNuvemshopProduct(importUrl);
+      setForm((f) => ({
+        ...f,
+        title: data.title || f.title,
+        description: data.description || f.description,
+        price: data.price || f.price,
+        image: data.image || f.image,
+        buyLink: importUrl,
+      }));
+      setImportUrl("");
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Erro ao importar produto.");
+    } finally {
+      setImporting(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -116,6 +145,36 @@ function AdminProdutos() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Import from Nuvemshop URL */}
+              <div className="space-y-2">
+                <Label>Importar da Nuvemshop</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={importUrl}
+                    onChange={(e) => { setImportUrl(e.target.value); setImportError(""); }}
+                    placeholder="Cole o link do produto Nuvemshop..."
+                    disabled={importing}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleImport}
+                    disabled={importing || !importUrl.trim()}
+                    className="shrink-0 gap-2"
+                  >
+                    {importing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    Importar
+                  </Button>
+                </div>
+                {importError && (
+                  <p className="text-xs text-destructive">{importError}</p>
+                )}
+              </div>
+
               {/* Image upload */}
               <div className="space-y-2">
                 <Label>Foto do produto</Label>
@@ -197,6 +256,17 @@ function AdminProdutos() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="buyLink">Link de compra (redireciona ao clicar em Comprar)</Label>
+                <Input
+                  id="buyLink"
+                  value={form.buyLink}
+                  onChange={(e) => setForm((f) => ({ ...f, buyLink: e.target.value }))}
+                  placeholder="https://..."
+                  type="url"
+                />
               </div>
 
               <div className="flex items-center gap-2">

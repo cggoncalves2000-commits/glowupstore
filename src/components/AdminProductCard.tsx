@@ -10,6 +10,8 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
     return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   };
 
+  const buyHref = product.buyLink || whatsappLink(`Oi! Tenho interesse no produto "${product.title}"`);
+
   return (
     <article className="group relative flex flex-col border border-border bg-card transition-all duration-500 hover:shadow-card-hover hover:-translate-y-1">
       <div className="relative block aspect-4/5 overflow-hidden bg-secondary">
@@ -56,26 +58,28 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
             asChild
             className="flex-1 transition-all duration-300 hover:shadow-glow-rose"
           >
-            <a href={whatsappLink(`Oi! Tenho interesse no produto "${product.title}"`)} target="_blank" rel="noopener noreferrer">
+            <a href={buyHref} target="_blank" rel="noopener noreferrer">
               <ShoppingBag className="mr-2 h-4 w-4" />
               Comprar
             </a>
           </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            aria-label="Perguntar no WhatsApp"
-            className="transition-all duration-300 hover:border-whatsapp hover:bg-whatsapp/10 hover:text-whatsapp"
-          >
-            <a
-              href={whatsappLink(`Oi! Tenho interesse no produto "${product.title}"`)}
-              target="_blank"
-              rel="noopener noreferrer"
+          {!product.buyLink && (
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              aria-label="Perguntar no WhatsApp"
+              className="transition-all duration-300 hover:border-whatsapp hover:bg-whatsapp/10 hover:text-whatsapp"
             >
-              <MessageCircle className="h-4 w-4" />
-            </a>
-          </Button>
+              <a
+                href={whatsappLink(`Oi! Tenho interesse no produto "${product.title}"`)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </a>
+            </Button>
+          )}
         </div>
       </div>
     </article>
