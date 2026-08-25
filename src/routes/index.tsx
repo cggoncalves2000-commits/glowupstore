@@ -7,6 +7,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { ProductCard } from "@/components/ProductCard";
+import { AdminProductCard } from "@/components/AdminProductCard";
+import { useAdminStore } from "@/stores/adminStore";
 import { fetchProducts } from "@/lib/shopify";
 import { CATEGORIES, whatsappLink } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
@@ -107,6 +109,8 @@ function Home() {
     queryKey: ["products"],
     queryFn: () => fetchProducts(24),
   });
+
+  const adminProducts = useAdminStore((s) => s.products);
 
   const filtered = useMemo(() => {
     if (!activeCategory) return products;
@@ -267,7 +271,7 @@ function Home() {
                 </div>
               ))}
             </div>
-          ) : filtered.length === 0 ? (
+          ) : filtered.length === 0 && adminProducts.filter((p) => p.available).length === 0 ? (
             <div className="border border-dashed border-border py-20 text-center">
               <p className="font-display text-2xl">Nenhum produto encontrado</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -287,6 +291,21 @@ function Home() {
                   <ProductCard product={product} />
                 </div>
               ))}
+              {adminProducts
+                .filter((p) => p.available)
+                .filter((p) => {
+                  if (!activeCategory) return true;
+                  return p.category === activeCategory;
+                })
+                .map((product, i) => (
+                  <div
+                    key={product.id}
+                    className="animate-fade-in-up"
+                    style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
+                  >
+                    <AdminProductCard product={product} />
+                  </div>
+                ))}
             </div>
           )}
         </div>

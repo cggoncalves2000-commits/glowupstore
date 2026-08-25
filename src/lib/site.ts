@@ -18,9 +18,9 @@ export function whatsappLink(message?: string) {
 }
 
 export const CATEGORIES = [
-  { label: "Skincare", query: "skincare", description: "Rotina de pele" },
-  { label: "Cabelos", query: "cabelo", description: "Força & brilho" },
-  { label: "Corpo", query: "corpo", description: "Hidratação diária" },
-  { label: "Maquiagem", query: "maquiagem", description: "Alta cobertura" },
-  { label: "Perfumaria", query: "perfume", description: "Assinatura olfativa" },
+  { label: "Saude", query: "saude", description: "Bem-estar e saude" },
+  { label: "Produtos De Cabelo", query: "cabelo", description: "Forca & brilho" },
+  { label: "Maquiagens", query: "maquiagem", description: "Alta cobertura" },
+  { label: "Beleza", query: "beleza", description: "Produtos de beleza" },
+  { label: "Cuidados", query: "cuidados", description: "Cuidados diarios" },
 ];
