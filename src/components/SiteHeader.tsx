@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { SITE, whatsappLink } from "@/lib/site";
+import { SITE } from "@/lib/site";
 import logo from "@/assets/favicon.jpg";
 
 const NAV = [
@@ -48,17 +48,6 @@ export function SiteHeader({ activeSection, onNavigate }: SiteHeaderProps) {
             </button>
           ))}
         </nav>
-
-        <div className="flex items-center gap-1">
-          <a
-            href={whatsappLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden text-sm text-accent transition-colors hover:text-accent/80 sm:inline-flex"
-          >
-            WhatsApp
-          </a>
-        </div>
       </div>
     </header>
   );

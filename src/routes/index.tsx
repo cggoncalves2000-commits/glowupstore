@@ -134,6 +134,11 @@ function Home() {
 
   const adminProducts = useAdminStore((s) => s.products);
 
+  useEffect(() => {
+    const el = document.getElementById(activeSection);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeSection]);
+
   const filtered = useMemo(() => {
     if (!activeCategory) return products;
     const term = activeCategory.toLowerCase();
