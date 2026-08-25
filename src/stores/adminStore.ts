@@ -9,6 +9,7 @@ export interface AdminProduct {
   image: string;
   category: string;
   available: boolean;
+  featured: boolean;
   createdAt: number;
 }
 

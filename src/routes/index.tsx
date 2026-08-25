@@ -271,7 +271,7 @@ function Home() {
                 </div>
               ))}
             </div>
-          ) : filtered.length === 0 && adminProducts.filter((p) => p.available).length === 0 ? (
+          ) : filtered.length === 0 && adminProducts.filter((p) => p.available && p.featured).length === 0 ? (
             <div className="border border-dashed border-border py-20 text-center">
               <p className="font-display text-2xl">Nenhum produto encontrado</p>
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -292,7 +292,7 @@ function Home() {
                 </div>
               ))}
               {adminProducts
-                .filter((p) => p.available)
+                .filter((p) => p.available && p.featured)
                 .filter((p) => {
                   if (!activeCategory) return true;
                   return p.category === activeCategory;
