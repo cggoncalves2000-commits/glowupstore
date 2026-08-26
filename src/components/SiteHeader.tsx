@@ -2,18 +2,21 @@ import { Link } from "@tanstack/react-router";
 import { SITE } from "@/lib/site";
 import logo from "@/assets/favicon.jpg";
 
+export type SectionId = "destaques" | "categorias" | "ofertas" | "avaliacoes";
+
 const NAV = [
-  { label: "Destaques", id: "destaques" },
-  { label: "Categorias", id: "categorias" },
-  { label: "Ofertas", id: "ofertas" },
-  { label: "Avaliacoes", id: "avaliacoes" },
+  { label: "Destaques", id: "destaques" as const },
+  { label: "Categorias", id: "categorias" as const },
+  { label: "Ofertas", id: "ofertas" as const },
+  { label: "Avaliacoes", id: "avaliacoes" as const },
 ];
 
-export function SiteHeader() {
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+interface SiteHeaderProps {
+  activeSection: SectionId;
+  onNavigate: (id: SectionId) => void;
+}
 
+export function SiteHeader({ activeSection, onNavigate }: SiteHeaderProps) {
   return (
     <header className="glass sticky top-0 z-40 border-b border-border/50">
       <div className="relative mx-auto flex h-16 max-w-7xl items-center px-4 md:px-8">
@@ -31,10 +34,17 @@ export function SiteHeader() {
           {NAV.map((item) => (
             <button
               key={item.id}
-              onClick={() => scrollTo(item.id)}
-              className="relative px-3 py-2 text-sm text-foreground/70 transition-colors hover:text-accent"
+              onClick={() => onNavigate(item.id)}
+              className={`relative px-3 py-2 text-sm transition-colors ${
+                activeSection === item.id ? "text-accent" : "text-foreground/70 hover:text-accent"
+              }`}
             >
               {item.label}
+              <span
+                className={`absolute bottom-0 left-3 right-3 h-0.5 transition-transform duration-300 ${
+                  activeSection === item.id ? "scale-x-100 bg-accent" : "scale-x-0 bg-accent"
+                }`}
+              />
             </button>
           ))}
         </nav>
