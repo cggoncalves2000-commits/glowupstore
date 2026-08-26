@@ -22,6 +22,16 @@ export interface Banner {
   createdAt: number;
 }
 
+export interface Offer {
+  id: string;
+  image: string;
+  eyebrow: string;
+  title: string;
+  buttonText: string;
+  buttonLink: string;
+  createdAt: number;
+}
+
 interface AdminState {
   isAuthenticated: boolean;
   login: (user: string, pass: string) => boolean;

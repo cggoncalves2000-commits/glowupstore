@@ -1,20 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Loader2, ShieldCheck, Sparkles, Star, Truck, Heart, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShieldCheck, Sparkles, Star, Truck, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { ProductCard } from "@/components/ProductCard";
 import { AdminProductCard } from "@/components/AdminProductCard";
-import { useAdminStore } from "@/stores/adminStore";
 import { fetchProductsGitHub } from "@/lib/github-products";
 import { fetchBannersGitHub } from "@/lib/github-banners";
+import { fetchOffersGitHub } from "@/lib/github-offers";
 import { fetchProducts } from "@/lib/shopify";
-import { CATEGORIES, whatsappLink } from "@/lib/site";
+import { CATEGORIES } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
-import offerBanner from "@/assets/offer-banner.jpg";
 import carrosel1 from "@/assets/carrosel 1.jpeg";
 import carrosel2 from "@/assets/carrosel 2.jpeg";
 import carrosel3 from "@/assets/carrosel 3.jpeg";
@@ -105,7 +104,7 @@ function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
 
-  const { data: products = [], isLoading } = useQuery({
+  const { data: products = [] } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchProducts(24),
   });
@@ -118,6 +117,11 @@ function Home() {
   const { data: rawBanners = [] } = useQuery({
     queryKey: ["banners"],
     queryFn: () => fetchBannersGitHub(),
+  });
+
+  const { data: offers = [] } = useQuery({
+    queryKey: ["offers"],
+    queryFn: () => fetchOffersGitHub(),
   });
 
   const banners = useMemo(() => {
@@ -341,35 +345,39 @@ function Home() {
       </section>
 
       {/* OFERTAS */}
-      <section id="ofertas" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-        <div className="relative overflow-hidden rounded-lg">
-          <img
-            src={offerBanner}
-            alt="Frascos de skincare em tons de vinho sobre marmore bege"
-            width={1600}
-            height={704}
-            loading="lazy"
-            className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
-          <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
-            <span className="eyebrow text-rose-soft">Ofertas da semana</span>
-            <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
-              Kits selecionados com condicoes especiais
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                asChild
-                className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
-              >
-                <a href={whatsappLink("Oi! Quero saber as ofertas da semana da Glow Up Store")} target="_blank" rel="noopener noreferrer">
-                  Ver ofertas
-                </a>
-              </Button>
+      {offers.map((offer) => (
+        <section key={offer.id} id="ofertas" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+          <div className="relative overflow-hidden rounded-lg">
+            <img
+              src={offer.image}
+              alt={offer.title}
+              width={1600}
+              height={704}
+              loading="lazy"
+              className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
+              {offer.eyebrow && <span className="eyebrow text-rose-soft">{offer.eyebrow}</span>}
+              <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
+                {offer.title}
+              </h2>
+              {offer.buttonText && offer.buttonLink && (
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    asChild
+                    className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
+                  >
+                    <a href={offer.buttonLink} target="_blank" rel="noopener noreferrer">
+                      {offer.buttonText}
+                    </a>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       {/* AVALIACOES */}
       <section id="avaliacoes" className="mx-auto max-w-7xl px-4 pb-4 md:px-8">
