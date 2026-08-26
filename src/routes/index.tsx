@@ -143,12 +143,12 @@ function Home() {
   });
 
   const banners = useMemo(() => {
-    const savedDefaults = rawBanners.filter((b) => HERO_SLIDES.some((s) => s.id === b.id));
     const custom = rawBanners.filter((b) => !HERO_SLIDES.some((s) => s.id === b.id));
     const defaults = HERO_SLIDES.map((s) => {
-      const existing = savedDefaults.find((b) => b.id === s.id);
-      return existing ?? { id: s.id, image: s.src, link: "", createdAt: 0 };
-    });
+      const saved = rawBanners.find((b) => b.id === s.id);
+      if (saved && !saved.image) return null;
+      return saved ?? { id: s.id, image: s.src, link: "", createdAt: 0 };
+    }).filter(Boolean) as Array<{ id: string; image: string; link: string; productId?: string; createdAt: number }>;
     return [...defaults, ...custom];
   }, [rawBanners]);
 

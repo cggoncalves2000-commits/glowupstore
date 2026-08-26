@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Loader2, Plus, Trash2, Camera, X, Check } from "lucide-react";
+import { toast } from "sonner";
 import { type Banner, type AdminProduct } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -66,19 +67,12 @@ function AdminBanners() {
     setSaving(true);
     const json = JSON.stringify(updated);
     if (json.length > 900000) {
-      alert("Arquivo muito grande. Use links de imagem externos.");
       setSaving(false);
-      return;
+      throw new Error("Arquivo muito grande. Use links de imagem externos.");
     }
-    try {
-      await saveBannersGitHub({ data: updated });
-      setBanners(updated);
-    } catch (err) {
-      console.error("Erro ao salvar banners:", err);
-      alert(err instanceof Error ? err.message : "Erro ao salvar banners no GitHub.");
-    } finally {
-      setSaving(false);
-    }
+    await saveBannersGitHub({ data: updated });
+    setBanners(updated);
+    setSaving(false);
   };
 
   const getProductLink = (productId: string) => {
@@ -86,7 +80,7 @@ function AdminBanners() {
     return product?.buyLink || "";
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formImage) return;
     const link = getProductLink(formProductId);
     const newBanner: Banner = {
@@ -97,41 +91,57 @@ function AdminBanners() {
       createdAt: Date.now(),
     };
     const updated = [...banners, newBanner];
-    persist(updated);
     setFormImage("");
     setFormProductId("");
     setShowForm(false);
+    try {
+      await persist(updated);
+      toast.success("Banner adicionado");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar banner.");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    persist(banners.filter((b) => b.id !== id));
-    setConfirmDelete(null);
+  const handleDelete = async (id: string) => {
+    try {
+      await persist(banners.filter((b) => b.id !== id));
+      setConfirmDelete(null);
+      toast.success("Banner removido");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao remover banner.");
+    }
   };
 
   const handleEditImage = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 15 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 15MB.");
+      toast.error("Imagem muito grande. Maximo 15MB.");
       return;
     }
     try {
       const compressed = await compressImage(file);
-      persist(banners.map((b) => (b.id === id ? { ...b, image: compressed } : b)));
+      await persist(banners.map((b) => (b.id === id ? { ...b, image: compressed } : b)));
+      toast.success("Imagem atualizada");
     } catch {
-      alert("Erro ao processar imagem.");
+      toast.error("Erro ao processar imagem.");
     }
     setEditingImage(null);
     e.target.value = "";
   };
 
-  const handleEditProduct = (id: string) => {
+  const handleEditProduct = async (id: string) => {
     const link = getProductLink(editProductId);
-    persist(
-      banners.map((b) =>
-        b.id === id ? { ...b, link, productId: editProductId || undefined } : b
-      )
-    );
+    try {
+      await persist(
+        banners.map((b) =>
+          b.id === id ? { ...b, link, productId: editProductId || undefined } : b
+        )
+      );
+      toast.success("Produto vinculado atualizado");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar.");
+    }
     setEditing(null);
   };
 
