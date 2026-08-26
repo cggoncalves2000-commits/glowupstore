@@ -245,7 +245,7 @@ function Home() {
                 <button
                   key={banner.id}
                   onClick={handleClick}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                  className={`absolute inset-0 cursor-pointer transition-opacity duration-700 ease-in-out ${
                     i === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
                   }`}
                 >
@@ -291,21 +291,23 @@ function Home() {
 
       {/* BENEFICIOS */}
       <section className="border-b border-border bg-sand overflow-hidden">
-        <div className="flex animate-marquee whitespace-nowrap py-10">
-          {[...BENEFITS, ...BENEFITS, ...BENEFITS].map(({ icon: Icon, title, text }, i) => (
-            <div
-              key={`${title}-${i}`}
-              className="group flex items-start gap-3 mx-8 flex-shrink-0"
-            >
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:scale-110">
-                <Icon className="h-5 w-5" />
+        <div className="mx-auto max-w-7xl px-4 md:px-8 overflow-hidden">
+          <div className="flex animate-marquee whitespace-nowrap py-10">
+            {[...BENEFITS, ...BENEFITS, ...BENEFITS].map(({ icon: Icon, title, text }, i) => (
+              <div
+                key={`${title}-${i}`}
+                className="group flex items-start gap-3 mx-8 flex-shrink-0"
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:scale-110">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{title}</p>
+                  <p className="text-xs text-muted-foreground">{text}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium">{title}</p>
-                <p className="text-xs text-muted-foreground">{text}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
