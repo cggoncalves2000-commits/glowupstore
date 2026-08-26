@@ -115,8 +115,8 @@ function AdminBanners() {
   const handleEditImage = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 5MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 15MB.");
       return;
     }
     try {
@@ -142,8 +142,8 @@ function AdminBanners() {
   const handleNewImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 5MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 15MB.");
       return;
     }
     try {
