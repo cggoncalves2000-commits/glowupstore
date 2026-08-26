@@ -101,6 +101,7 @@ export const useAdminStore = create<AdminState>()(
     {
       name: "glowup-admin",
       partialize: (state) => ({
+        isAuthenticated: state.isAuthenticated,
         products: state.products,
       }),
     }
