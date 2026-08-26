@@ -271,6 +271,17 @@
   50% { transform: translateY(-8px); }
 }
 
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px 2px color-mix(in oklab, var(--accent) 50%, transparent),
+                0 0 20px 4px color-mix(in oklab, var(--accent) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 14px 4px color-mix(in oklab, var(--accent) 70%, transparent),
+                0 0 32px 8px color-mix(in oklab, var(--accent) 30%, transparent);
+  }
+}
+
 @utility animate-marquee {
   animation: marquee 25s linear infinite;
 }
@@ -307,6 +318,10 @@
 
 @utility animate-float {
   animation: float 4s ease-in-out infinite;
+}
+
+@utility animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 /* Stagger delays */

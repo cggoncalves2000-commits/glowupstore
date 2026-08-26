@@ -384,9 +384,9 @@ function Home() {
                         key={product.id}
                         id={`highlight-${product.id}`}
                         onClick={isHighlighted ? clearHighlight : undefined}
-                        className={`animate-fade-in-up transition-all duration-500 ${
+                        className={`animate-fade-in-up rounded-sm transition-all duration-500 ${
                           isHighlighted
-                            ? "ring-4 ring-accent ring-offset-2 ring-offset-background scale-[1.03] cursor-pointer"
+                            ? "animate-glow-pulse cursor-pointer"
                             : ""
                         }`}
                         style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
