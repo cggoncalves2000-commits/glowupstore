@@ -4,7 +4,16 @@ import { Image, LayoutGrid, Star } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location }) => {
-    const { isAuthenticated } = useAdminStore.getState();
+    let isAuthenticated = useAdminStore.getState().isAuthenticated;
+    if (!isAuthenticated) {
+      try {
+        const raw = localStorage.getItem("glowup-admin");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          isAuthenticated = parsed?.state?.isAuthenticated === true;
+        }
+      } catch { /* ignore */ }
+    }
     if (!isAuthenticated && location.pathname !== "/admin/login") {
       throw redirect({ to: "/admin/login" });
     }
