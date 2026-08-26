@@ -1,23 +1,9 @@
-import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useAdminStore } from "@/stores/adminStore";
 import { Image, LayoutGrid, Star } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
-  beforeLoad: ({ location }) => {
-    let isAuthenticated = useAdminStore.getState().isAuthenticated;
-    if (!isAuthenticated) {
-      try {
-        const raw = localStorage.getItem("glowup-admin");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          isAuthenticated = parsed?.state?.isAuthenticated === true;
-        }
-      } catch { /* ignore */ }
-    }
-    if (!isAuthenticated && location.pathname !== "/admin/login") {
-      throw redirect({ to: "/admin/login" });
-    }
-  },
   component: AdminLayout,
 });
 
@@ -30,8 +16,24 @@ const SIDEBAR = [
 function AdminLayout() {
   const { isAuthenticated, logout } = useAdminStore();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (ready && !isAuthenticated && location.pathname !== "/admin/login") {
+      navigate({ to: "/admin/login" });
+    }
+  }, [ready, isAuthenticated, location.pathname, navigate]);
 
   const isLoginPage = location.pathname === "/admin/login";
+
+  if (!ready || (!isAuthenticated && !isLoginPage)) {
+    return null;
+  }
 
   if (!isAuthenticated && isLoginPage) {
     return (
@@ -40,8 +42,6 @@ function AdminLayout() {
       </div>
     );
   }
-
-  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen bg-sand">
