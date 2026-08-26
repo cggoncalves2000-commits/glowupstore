@@ -37,6 +37,7 @@ function AdminBanners() {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [editLink, setEditLink] = useState("");
+  const [editingImage, setEditingImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
 
@@ -97,6 +98,8 @@ function AdminBanners() {
       persist(banners.map((b) => (b.id === id ? { ...b, image: reader.result as string } : b)));
     };
     reader.readAsDataURL(file);
+    setEditingImage(null);
+    e.target.value = "";
   };
 
   const handleEditLink = (id: string) => {
@@ -196,7 +199,7 @@ function AdminBanners() {
                 <img src={b.image} alt={`Banner ${idx + 1}`} className="h-full w-full object-cover" />
                 <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
-                    onClick={() => editFileRef.current?.click()}
+                    onClick={() => { setEditingImage(b.id); setTimeout(() => editFileRef.current?.click(), 0); }}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur transition-colors hover:bg-background"
                     title="Trocar imagem"
                   >
@@ -210,13 +213,6 @@ function AdminBanners() {
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <input
-                  ref={editFileRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleEditImage(b.id, e)}
-                  className="hidden"
-                />
               </div>
               <div className="p-3 space-y-2">
                 {editing === b.id ? (
@@ -268,6 +264,13 @@ function AdminBanners() {
           ))}
         </div>
       )}
+      <input
+        ref={editFileRef}
+        type="file"
+        accept="image/*"
+        onChange={(e) => { if (editingImage) handleEditImage(editingImage, e); }}
+        className="hidden"
+      />
     </div>
   );
 }
