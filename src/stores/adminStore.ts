@@ -39,7 +39,7 @@ const ADMIN_PASS = "glowup2026";
 
 async function syncToGitHub(products: AdminProduct[]) {
   try {
-    await saveProductsGitHub({ data: products });
+    await saveProductsGitHub(products);
   } catch (err) {
     console.error("Erro ao salvar no GitHub:", err);
   }

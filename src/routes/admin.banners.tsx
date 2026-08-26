@@ -57,7 +57,7 @@ function AdminBanners() {
   const persist = async (updated: Banner[]) => {
     setSaving(true);
     try {
-      await saveBannersGitHub({ data: updated });
+      await saveBannersGitHub(updated);
       setBanners(updated);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao salvar.");

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Star } from "lucide-react";
 import { useAdminStore } from "@/stores/adminStore";
 import { CATEGORIES } from "@/lib/site";
@@ -8,7 +9,11 @@ export const Route = createFileRoute("/admin/destaques")({
 });
 
 function AdminDestaques() {
-  const { products, updateProduct } = useAdminStore();
+  const { products, updateProduct, loadProducts } = useAdminStore();
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const featuredCount = products.filter((p) => p.featured).length;
 
