@@ -42,9 +42,9 @@ export const Route = createFileRoute("/")({
 });
 
 const HERO_SLIDES = [
-  { src: carrosel1, alt: "Carrossel de produtos de beleza 1" },
-  { src: carrosel2, alt: "Carrossel de produtos de beleza 2" },
-  { src: carrosel3, alt: "Carrossel de produtos de beleza 3" },
+  { id: "default-1", src: carrosel1, alt: "Carrossel de produtos de beleza 1" },
+  { id: "default-2", src: carrosel2, alt: "Carrossel de produtos de beleza 2" },
+  { id: "default-3", src: carrosel3, alt: "Carrossel de produtos de beleza 3" },
 ];
 
 const BENEFITS = [
@@ -116,10 +116,20 @@ function Home() {
     queryFn: () => fetchProductsGitHub(),
   });
 
-  const { data: banners = [] } = useQuery({
+  const { data: rawBanners = [] } = useQuery({
     queryKey: ["banners"],
     queryFn: () => fetchBannersGitHub(),
   });
+
+  const banners = useMemo(() => {
+    const savedDefaults = rawBanners.filter((b) => HERO_SLIDES.some((s) => s.id === b.id));
+    const custom = rawBanners.filter((b) => !HERO_SLIDES.some((s) => s.id === b.id));
+    const defaults = HERO_SLIDES.map((s) => {
+      const existing = savedDefaults.find((b) => b.id === s.id);
+      return existing ?? { id: s.id, image: s.src, link: "", createdAt: 0 };
+    });
+    return [...defaults, ...custom];
+  }, [rawBanners]);
 
   const slideCount = banners.length > 0 ? banners.length : HERO_SLIDES.length;
 
@@ -184,8 +194,8 @@ function Home() {
         <div className="relative mx-auto max-w-7xl">
           {/* Image area */}
           <div className="relative h-[500px] overflow-hidden rounded-lg md:h-[700px]">
-            {banners.length > 0 ? (
-              banners.map((banner, i) => (
+            {banners.map((banner, i) => (
+              banner.link ? (
                 <a key={banner.id} href={banner.link} target="_blank" rel="noopener noreferrer">
                   <img
                     src={banner.image}
@@ -195,19 +205,17 @@ function Home() {
                     }`}
                   />
                 </a>
-              ))
-            ) : (
-              HERO_SLIDES.map((slide, i) => (
+              ) : (
                 <img
-                  key={i}
-                  src={slide.src}
-                  alt={slide.alt}
+                  key={banner.id}
+                  src={banner.image}
+                  alt={`Banner ${i + 1}`}
                   className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
                     i === currentSlide ? "opacity-100" : "opacity-0"
                   }`}
                 />
-              ))
-            )}
+              )
+            ))}
 
             {/* Arrows */}
             <button
@@ -228,7 +236,7 @@ function Home() {
 
           {/* Dots */}
           <div className="flex justify-center pb-6 pt-4">
-            {(banners.length > 0 ? banners : HERO_SLIDES).map((_: unknown, i: number) => (
+            {banners.map((_: unknown, i: number) => (
               <button
                 key={i}
                 onClick={() => goToSlide(i)}

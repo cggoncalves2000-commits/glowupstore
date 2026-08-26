@@ -1,15 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Plus, Trash2, Upload, X } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, X, Check } from "lucide-react";
 import { type Banner } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchBannersGitHub, saveBannersGitHub } from "@/lib/github-banners";
+import carrosel1 from "@/assets/carrosel 1.jpeg";
+import carrosel2 from "@/assets/carrosel 2.jpeg";
+import carrosel3 from "@/assets/carrosel 3.jpeg";
 
 export const Route = createFileRoute("/admin/banners")({
   component: AdminBanners,
 });
+
+const DEFAULTS: Banner[] = [
+  { id: "default-1", image: carrosel1, link: "", createdAt: 0 },
+  { id: "default-2", image: carrosel2, link: "", createdAt: 0 },
+  { id: "default-3", image: carrosel3, link: "", createdAt: 0 },
+];
+
+function mergeDefaults(saved: Banner[]): Banner[] {
+  return DEFAULTS.map((d) => {
+    const existing = saved.find((b) => b.id === d.id);
+    return existing ? { ...d, link: existing.link, image: existing.image } : d;
+  }).concat(saved.filter((b) => !DEFAULTS.some((d) => d.id === b.id)));
+}
 
 function AdminBanners() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -19,22 +35,76 @@ function AdminBanners() {
   const [formImage, setFormImage] = useState("");
   const [formLink, setFormLink] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [editLink, setEditLink] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const editFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await fetchBannersGitHub();
-        setBanners(data);
+        setBanners(mergeDefaults(data));
       } catch {
-        // ignore
+        setBanners([...DEFAULTS]);
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const persist = async (updated: Banner[]) => {
+    setSaving(true);
+    try {
+      await saveBannersGitHub({ data: updated });
+      setBanners(updated);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao salvar.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAdd = () => {
+    if (!formImage || !formLink) return;
+    const newBanner: Banner = {
+      id: crypto.randomUUID(),
+      image: formImage,
+      link: formLink,
+      createdAt: Date.now(),
+    };
+    const updated = [...banners, newBanner];
+    persist(updated);
+    setFormImage("");
+    setFormLink("");
+    setShowForm(false);
+  };
+
+  const handleDelete = (id: string) => {
+    persist(banners.filter((b) => b.id !== id));
+    setConfirmDelete(null);
+  };
+
+  const handleEditImage = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 2MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      persist(banners.map((b) => (b.id === id ? { ...b, image: reader.result as string } : b)));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleEditLink = (id: string) => {
+    persist(banners.map((b) => (b.id === id ? { ...b, link: editLink } : b)));
+    setEditing(null);
+  };
+
+  const handleNewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
@@ -44,43 +114,6 @@ function AdminBanners() {
     const reader = new FileReader();
     reader.onload = () => setFormImage(reader.result as string);
     reader.readAsDataURL(file);
-  };
-
-  const handleAdd = async () => {
-    if (!formImage || !formLink) return;
-    setSaving(true);
-    const newBanner: Banner = {
-      id: crypto.randomUUID(),
-      image: formImage,
-      link: formLink,
-      createdAt: Date.now(),
-    };
-    const updated = [...banners, newBanner];
-    try {
-      await saveBannersGitHub({ data: updated });
-      setBanners(updated);
-      setFormImage("");
-      setFormLink("");
-      setShowForm(false);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao salvar.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    setSaving(true);
-    const updated = banners.filter((b) => b.id !== id);
-    try {
-      await saveBannersGitHub({ data: updated });
-      setBanners(updated);
-      setConfirmDelete(null);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao remover.");
-    } finally {
-      setSaving(false);
-    }
   };
 
   return (
@@ -121,7 +154,7 @@ function AdminBanners() {
                     <span className="text-sm text-muted-foreground">Clique para enviar uma imagem</span>
                   )}
                 </div>
-                <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} className="hidden" />
+                <input ref={fileRef} type="file" accept="image/*" onChange={handleNewImage} className="hidden" />
                 {formImage && (
                   <button type="button" onClick={() => setFormImage("")} className="text-xs text-destructive hover:underline">
                     Remover imagem
@@ -155,30 +188,67 @@ function AdminBanners() {
         <div className="mt-12 flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      ) : banners.length === 0 ? (
-        <div className="mt-12 border border-dashed border-border py-20 text-center">
-          <p className="font-display text-2xl">Nenhum banner cadastrado</p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Clique em "Novo banner" para comecar.
-          </p>
-        </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {banners.map((b) => (
+          {banners.map((b, idx) => (
             <div key={b.id} className="group flex flex-col border border-border bg-card">
               <div className="relative aspect-video overflow-hidden bg-secondary">
-                <img src={b.image} alt="Banner" className="h-full w-full object-cover" />
+                <img src={b.image} alt={`Banner ${idx + 1}`} className="h-full w-full object-cover" />
                 <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    onClick={() => editFileRef.current?.click()}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur transition-colors hover:bg-background"
+                    title="Trocar imagem"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
                   <button
                     onClick={() => setConfirmDelete(b.id)}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-destructive backdrop-blur transition-colors hover:bg-background"
+                    title="Remover"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
+                <input
+                  ref={editFileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditImage(b.id, e)}
+                  className="hidden"
+                />
               </div>
-              <div className="p-3">
-                <p className="truncate text-xs text-muted-foreground">{b.link}</p>
+              <div className="p-3 space-y-2">
+                {editing === b.id ? (
+                  <div className="flex gap-2">
+                    <Input
+                      value={editLink}
+                      onChange={(e) => setEditLink(e.target.value)}
+                      placeholder="https://..."
+                      type="url"
+                      className="h-8 text-xs"
+                    />
+                    <button
+                      onClick={() => handleEditLink(b.id)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-accent text-accent-foreground"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setEditing(null)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-secondary text-muted-foreground"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { setEditing(b.id); setEditLink(b.link); }}
+                    className="w-full text-left text-xs text-muted-foreground hover:text-foreground truncate"
+                  >
+                    {b.link || "Clique para adicionar link"}
+                  </button>
+                )}
               </div>
 
               {confirmDelete === b.id && (
