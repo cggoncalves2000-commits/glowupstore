@@ -146,9 +146,10 @@ function Home() {
     const custom = rawBanners.filter((b) => !HERO_SLIDES.some((s) => s.id === b.id));
     const defaults = HERO_SLIDES.map((s) => {
       const saved = rawBanners.find((b) => b.id === s.id);
-      if (saved && !saved.image) return null;
-      return saved ?? { id: s.id, image: s.src, link: "", createdAt: 0 };
-    }).filter(Boolean) as Array<{ id: string; image: string; link: string; productId?: string; createdAt: number }>;
+      if (!saved) return null;
+      if (!saved.image) return null;
+      return saved;
+    }).filter(Boolean) as typeof rawBanners;
     return [...defaults, ...custom];
   }, [rawBanners]);
 
