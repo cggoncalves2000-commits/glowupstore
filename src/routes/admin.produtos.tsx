@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import { useAdminStore, type AdminProduct } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -290,20 +290,6 @@ function AdminProdutos() {
                 </Label>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={form.featured}
-                  onChange={(e) => setForm((f) => ({ ...f, featured: e.target.checked }))}
-                  className="h-4 w-4 rounded border-input"
-                />
-                <Label htmlFor="featured" className="text-sm font-normal flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5 text-accent" />
-                  Exibir em Destaques
-                </Label>
-              </div>
-
               <div className="flex gap-3 pt-2">
                 <Button type="submit" className="flex-1">
                   {editing ? "Salvar alteracoes" : "Cadastrar produto"}
@@ -365,11 +351,6 @@ function AdminProdutos() {
                 {!p.available && (
                   <span className="eyebrow absolute left-0 top-0 bg-ink px-2 py-1 text-ink-foreground">
                     Indisponivel
-                  </span>
-                )}
-                {p.featured && (
-                  <span className="eyebrow absolute right-0 top-0 flex items-center gap-1 bg-accent px-2 py-1 text-accent-foreground">
-                    <Star className="h-3 w-3 fill-current" /> Destaque
                   </span>
                 )}
               </div>
