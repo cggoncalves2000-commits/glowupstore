@@ -134,6 +134,13 @@ function Home() {
 
   const adminProducts = useAdminStore((s) => s.products);
 
+  const handleNavigate = useCallback((id: SectionId) => {
+    setActiveSection(id);
+    if (id === "categorias") {
+      setActiveCategory("saude");
+    }
+  }, []);
+
   useEffect(() => {
     const el = document.getElementById(activeSection);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -157,7 +164,7 @@ function Home() {
 
   return (
     <div className="min-h-screen">
-      <SiteHeader activeSection={activeSection} onNavigate={setActiveSection} />
+      <SiteHeader activeSection={activeSection} onNavigate={handleNavigate} />
 
       {/* HERO */}
       <section className="bg-sand">
