@@ -416,7 +416,7 @@ function Home() {
 
       {/* AVALIACOES */}
       {activeSection === "avaliacoes" && (
-        <section id="avaliacoes" className="mx-auto max-w-7xl px-4 pb-4 md:px-8">
+        <section id="avaliacoes" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
           <span className="eyebrow text-accent">Avaliacoes</span>
           <h2 className="mt-2 font-display text-4xl md:text-5xl">O que dizem as clientes</h2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
