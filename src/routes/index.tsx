@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ShieldCheck, Sparkles, Star, Truck, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShieldCheck, Sparkles, Star, Truck, Quote, CreditCard, RotateCcw, Heart, Package, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader, type SectionId } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -51,6 +51,11 @@ const BENEFITS = [
   { icon: Sparkles, title: "Curadoria propria", text: "Testado antes de vender" },
   { icon: Truck, title: "Envio rapido", text: "Para todo o Brasil" },
   { icon: Star, title: "Atendimento humano", text: "Direto no WhatsApp" },
+  { icon: CreditCard, title: "Parcelamento", text: "Ate 6x sem juros" },
+  { icon: RotateCcw, title: "Troca garantida", text: "30 dias para devolver" },
+  { icon: Heart, title: "Produtos selecionados", text: "So o melhor pra voce" },
+  { icon: Package, title: "Embalagem segura", text: "Chega intacto ate voce" },
+  { icon: Headphones, title: "Suporte dedicado", text: "Tiramos todas suas duvidas" },
 ];
 
 const TESTIMONIALS = [
@@ -252,12 +257,12 @@ function Home() {
       </section>
 
       {/* BENEFICIOS */}
-      <section className="border-b border-border bg-sand">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-10 md:grid-cols-4 md:gap-6 md:px-8">
-          {BENEFITS.map(({ icon: Icon, title, text }, i) => (
+      <section className="border-b border-border bg-sand overflow-hidden">
+        <div className="flex animate-marquee whitespace-nowrap py-10">
+          {[...BENEFITS, ...BENEFITS, ...BENEFITS].map(({ icon: Icon, title, text }, i) => (
             <div
-              key={title}
-              className={`group flex items-start gap-3 animate-fade-in-up delay-${(i + 1) * 100}`}
+              key={`${title}-${i}`}
+              className="group flex items-start gap-3 mx-8 flex-shrink-0"
             >
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-foreground group-hover:scale-110">
                 <Icon className="h-5 w-5" />
@@ -325,13 +330,6 @@ function Home() {
           </div>
 
           <div className="mt-8">
-            {activeCategory && (
-              <div className="mb-4 flex justify-end">
-                <Button variant="ghost" onClick={() => setActiveCategory(null)} className="text-accent">
-                  Limpar filtro
-                </Button>
-              </div>
-            )}
             {activeCategory && (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {filtered.map((product, i) => (

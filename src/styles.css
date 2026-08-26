@@ -198,6 +198,11 @@
 
 /* ─── Animations ─────────────────────────────────────── */
 
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -264,6 +269,10 @@
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+
+@utility animate-marquee {
+  animation: marquee 25s linear infinite;
 }
 
 @utility animate-fade-in-up {

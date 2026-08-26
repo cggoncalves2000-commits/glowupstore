@@ -48,6 +48,10 @@ const ADMIN_USER = "admin";
 const ADMIN_PASS = "glowup2026";
 
 async function syncToGitHub(products: AdminProduct[]) {
+  if (!Array.isArray(products)) {
+    console.error("Tentativa de salvar dados invalidos no GitHub");
+    return;
+  }
   try {
     await saveProductsGitHub(products);
   } catch (err) {
@@ -77,7 +81,11 @@ export const useAdminStore = create<AdminState>()(
         set({ loading: true });
         try {
           const products = await fetchProductsGitHub();
-          set({ products, loading: false });
+          if (Array.isArray(products)) {
+            set({ products, loading: false });
+          } else {
+            set({ loading: false });
+          }
         } catch {
           set({ loading: false });
         }
