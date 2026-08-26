@@ -52,8 +52,21 @@ async function syncToGitHub(products: AdminProduct[]) {
     console.error("Tentativa de salvar dados invalidos no GitHub");
     return;
   }
+  if (products.length === 0) {
+    console.error("Bloqueado: tentativa de salvar array vazio no GitHub");
+    return;
+  }
+  const clean = products.map((p) => ({
+    ...p,
+    image: p.image.startsWith("data:") ? "" : p.image,
+  }));
+  const json = JSON.stringify(clean);
+  if (json.length > 800000) {
+    alert("Arquivo muito grande para salvar no GitHub. Use links de imagem externos.");
+    return;
+  }
   try {
-    await saveProductsGitHub(products);
+    await saveProductsGitHub(clean);
   } catch (err) {
     console.error("Erro ao salvar no GitHub:", err);
   }
@@ -81,10 +94,12 @@ export const useAdminStore = create<AdminState>()(
         set({ loading: true });
         try {
           const products = await fetchProductsGitHub();
-          if (Array.isArray(products)) {
+          if (Array.isArray(products) && products.length > 0) {
             set({ products, loading: false });
-          } else {
+          } else if (get().products.length > 0) {
             set({ loading: false });
+          } else {
+            set({ products: [], loading: false });
           }
         } catch {
           set({ loading: false });

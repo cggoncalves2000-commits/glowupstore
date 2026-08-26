@@ -55,8 +55,18 @@ function AdminOfertas() {
 
   const persist = async (updated: Offer[]) => {
     setSaving(true);
+    const clean = updated.map((o) => ({
+      ...o,
+      image: o.image.startsWith("data:") ? "" : o.image,
+    }));
+    const json = JSON.stringify(clean);
+    if (json.length > 800000) {
+      alert("Arquivo muito grande. Use links de imagem externos.");
+      setSaving(false);
+      return;
+    }
     try {
-      await saveOffersGitHub(updated);
+      await saveOffersGitHub(clean);
       setOffers(updated);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao salvar.");
