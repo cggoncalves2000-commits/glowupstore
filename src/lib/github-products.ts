@@ -52,7 +52,8 @@ export const fetchProductsGitHub = createServerFn({ method: "GET" })
     try {
       const content = await getContent();
       if (!content) return [];
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
@@ -61,8 +62,23 @@ export const fetchProductsGitHub = createServerFn({ method: "GET" })
 export const saveProductsGitHub = createServerFn({ method: "POST" })
   .validator((products: AdminProduct[]) => products)
   .handler(async ({ data: products }) => {
+    if (!Array.isArray(products) || products.length === 0) {
+      throw new Error("Dados invalidos: produtos vazio ou invalido.");
+    }
+
+    for (const p of products) {
+      if (!p.id || !p.title) {
+        throw new Error("Produto invalido: titulo ou id ausente.");
+      }
+    }
+
     const sha = await getFileSha();
     const content = JSON.stringify(products, null, 2);
+
+    if (content.length > 900000) {
+      throw new Error("Arquivo muito grande. Remova imagens de produtos para salvar.");
+    }
+
     const encoded = btoa(unescape(encodeURIComponent(content)));
 
     const body: Record<string, unknown> = {

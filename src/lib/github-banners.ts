@@ -51,7 +51,8 @@ export const fetchBannersGitHub = createServerFn({ method: "GET" })
     try {
       const content = await getContent();
       if (!content) return [];
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
@@ -60,8 +61,17 @@ export const fetchBannersGitHub = createServerFn({ method: "GET" })
 export const saveBannersGitHub = createServerFn({ method: "POST" })
   .validator((banners: Banner[]) => banners)
   .handler(async ({ data: banners }) => {
+    if (!Array.isArray(banners)) {
+      throw new Error("Dados invalidos: banners invalidos.");
+    }
+
     const sha = await getFileSha();
     const content = JSON.stringify(banners, null, 2);
+
+    if (content.length > 900000) {
+      throw new Error("Arquivo muito grande. Remova imagens para salvar.");
+    }
+
     const encoded = btoa(unescape(encodeURIComponent(content)));
 
     const body: Record<string, unknown> = {
