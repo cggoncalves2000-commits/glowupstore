@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Plus, Trash2, Pencil, X, Check } from "lucide-react";
+import { Loader2, Plus, Trash2, Camera, X, Check } from "lucide-react";
 import { type Banner } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchBannersGitHub, saveBannersGitHub } from "@/lib/github-banners";
+import { compressImage } from "@/lib/compress-image";
 import carrosel1 from "@/assets/carrosel 1.jpeg";
 import carrosel2 from "@/assets/carrosel 2.jpeg";
 import carrosel3 from "@/assets/carrosel 3.jpeg";
@@ -60,18 +61,19 @@ function AdminBanners() {
       await saveBannersGitHub(updated);
       setBanners(updated);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao salvar.");
+      console.error("Erro ao salvar banners:", err);
+      alert(err instanceof Error ? err.message : "Erro ao salvar banners no GitHub.");
     } finally {
       setSaving(false);
     }
   };
 
   const handleAdd = () => {
-    if (!formImage || !formLink) return;
+    if (!formImage) return;
     const newBanner: Banner = {
       id: crypto.randomUUID(),
       image: formImage,
-      link: formLink,
+      link: formLink || "",
       createdAt: Date.now(),
     };
     const updated = [...banners, newBanner];
@@ -86,18 +88,19 @@ function AdminBanners() {
     setConfirmDelete(null);
   };
 
-  const handleEditImage = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditImage = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 5MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      persist(banners.map((b) => (b.id === id ? { ...b, image: reader.result as string } : b)));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      persist(banners.map((b) => (b.id === id ? { ...b, image: compressed } : b)));
+    } catch {
+      alert("Erro ao processar imagem.");
+    }
     setEditingImage(null);
     e.target.value = "";
   };
@@ -107,16 +110,19 @@ function AdminBanners() {
     setEditing(null);
   };
 
-  const handleNewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 5MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setFormImage(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setFormImage(compressed);
+    } catch {
+      alert("Erro ao processar imagem.");
+    }
   };
 
   return (
@@ -177,7 +183,7 @@ function AdminBanners() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button onClick={handleAdd} className="flex-1" disabled={!formImage || !formLink || saving}>
+                <Button onClick={handleAdd} className="flex-1" disabled={!formImage || saving}>
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Salvar banner"}
                 </Button>
                 <Button variant="outline" onClick={() => setShowForm(false)}>Cancelar</Button>
@@ -203,7 +209,7 @@ function AdminBanners() {
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur transition-colors hover:bg-background"
                     title="Trocar imagem"
                   >
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Camera className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => setConfirmDelete(b.id)}

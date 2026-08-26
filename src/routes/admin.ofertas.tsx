@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
-import { Loader2, Plus, Trash2, Pencil, X, Check } from "lucide-react";
+import { Loader2, Plus, Trash2, Camera, Pencil, X, Check } from "lucide-react";
 import { type Offer } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchOffersGitHub, saveOffersGitHub } from "@/lib/github-offers";
+import { compressImage } from "@/lib/compress-image";
 import offerBanner from "@/assets/offer-banner.jpg";
 
 export const Route = createFileRoute("/admin/ofertas")({
@@ -91,30 +92,34 @@ function AdminOfertas() {
     setEditField({});
   };
 
-  const handleNewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 5MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setForm((f) => ({ ...f, image: reader.result as string }));
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setForm((f) => ({ ...f, image: compressed }));
+    } catch {
+      alert("Erro ao processar imagem.");
+    }
   };
 
-  const handleEditImage = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditImage = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 5MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      persist(offers.map((o) => (o.id === id ? { ...o, image: reader.result as string } : o)));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      persist(offers.map((o) => (o.id === id ? { ...o, image: compressed } : o)));
+    } catch {
+      alert("Erro ao processar imagem.");
+    }
     setEditingImageId(null);
     e.target.value = "";
   };
@@ -261,7 +266,7 @@ function AdminOfertas() {
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur transition-colors hover:bg-background"
                     title="Trocar imagem"
                   >
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Camera className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => setConfirmDelete(o.id)}

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/lib/site";
 import { scrapeProduct } from "@/lib/scrape-server";
+import { compressImage } from "@/lib/compress-image";
 
 export const Route = createFileRoute("/admin/produtos")({
   component: AdminProdutos,
@@ -59,16 +60,19 @@ function AdminProdutos() {
     setShowForm(true);
   };
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert("Imagem muito grande. Maximo 2MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Imagem muito grande. Maximo 5MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setForm((f) => ({ ...f, image: reader.result as string }));
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setForm((f) => ({ ...f, image: compressed }));
+    } catch {
+      alert("Erro ao processar imagem.");
+    }
   };
 
   const handleImport = async () => {
