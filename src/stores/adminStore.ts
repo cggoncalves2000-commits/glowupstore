@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { fetchProductsGitHub, saveProductsGitHub } from "@/lib/github-products";
 
 export interface AdminProduct {
   id: string;
@@ -19,18 +20,29 @@ interface AdminState {
   login: (user: string, pass: string) => boolean;
   logout: () => void;
   products: AdminProduct[];
-  addProduct: (product: Omit<AdminProduct, "id" | "createdAt">) => void;
-  updateProduct: (id: string, product: Partial<AdminProduct>) => void;
-  deleteProduct: (id: string) => void;
+  loading: boolean;
+  loadProducts: () => Promise<void>;
+  addProduct: (product: Omit<AdminProduct, "id" | "createdAt">) => Promise<void>;
+  updateProduct: (id: string, product: Partial<AdminProduct>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
 }
 
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "glowup2026";
 
+async function syncToGitHub(products: AdminProduct[]) {
+  try {
+    await saveProductsGitHub({ data: products });
+  } catch (err) {
+    console.error("Erro ao salvar no GitHub:", err);
+  }
+}
+
 export const useAdminStore = create<AdminState>()(
   persist(
     (set, get) => ({
       isAuthenticated: false,
+      loading: false,
 
       login: (user: string, pass: string) => {
         if (user === ADMIN_USER && pass === ADMIN_PASS) {
@@ -44,25 +56,39 @@ export const useAdminStore = create<AdminState>()(
 
       products: [],
 
-      addProduct: (product) => {
+      loadProducts: async () => {
+        set({ loading: true });
+        try {
+          const products = await fetchProductsGitHub();
+          set({ products, loading: false });
+        } catch {
+          set({ loading: false });
+        }
+      },
+
+      addProduct: async (product) => {
         const newProduct: AdminProduct = {
           ...product,
           id: crypto.randomUUID(),
           createdAt: Date.now(),
         };
-        set({ products: [...get().products, newProduct] });
+        const updated = [...get().products, newProduct];
+        set({ products: updated });
+        await syncToGitHub(updated);
       },
 
-      updateProduct: (id, updates) => {
-        set({
-          products: get().products.map((p) =>
-            p.id === id ? { ...p, ...updates } : p
-          ),
-        });
+      updateProduct: async (id, updates) => {
+        const updated = get().products.map((p) =>
+          p.id === id ? { ...p, ...updates } : p
+        );
+        set({ products: updated });
+        await syncToGitHub(updated);
       },
 
-      deleteProduct: (id) => {
-        set({ products: get().products.filter((p) => p.id !== id) });
+      deleteProduct: async (id) => {
+        const updated = get().products.filter((p) => p.id !== id);
+        set({ products: updated });
+        await syncToGitHub(updated);
       },
     }),
     {

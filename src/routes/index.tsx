@@ -9,6 +9,7 @@ import { WhatsAppFloat } from "@/components/WhatsAppFloat";
 import { ProductCard } from "@/components/ProductCard";
 import { AdminProductCard } from "@/components/AdminProductCard";
 import { useAdminStore } from "@/stores/adminStore";
+import { fetchProductsGitHub } from "@/lib/github-products";
 import { fetchProducts } from "@/lib/shopify";
 import { CATEGORIES, whatsappLink } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
@@ -132,7 +133,10 @@ function Home() {
     queryFn: () => fetchProducts(24),
   });
 
-  const adminProducts = useAdminStore((s) => s.products);
+  const { data: adminProducts = [] } = useQuery({
+    queryKey: ["adminProducts"],
+    queryFn: () => fetchProductsGitHub(),
+  });
 
   const handleNavigate = useCallback((id: SectionId) => {
     setActiveSection(id);

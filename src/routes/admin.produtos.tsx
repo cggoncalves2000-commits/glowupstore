@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Loader2, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
 import { useAdminStore, type AdminProduct } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ const EMPTY: Omit<AdminProduct, "id" | "createdAt"> = {
 };
 
 function AdminProdutos() {
-  const { products, addProduct, updateProduct, deleteProduct } = useAdminStore();
+  const { products, addProduct, updateProduct, deleteProduct, loadProducts, loading } = useAdminStore();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<AdminProduct | null>(null);
   const [form, setForm] = useState(EMPTY);
@@ -33,6 +33,10 @@ function AdminProdutos() {
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const openNew = () => {
     setEditing(null);
