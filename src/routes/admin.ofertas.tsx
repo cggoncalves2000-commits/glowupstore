@@ -66,7 +66,7 @@ function AdminOfertas() {
       return;
     }
     try {
-      await saveOffersGitHub(clean);
+      await saveOffersGitHub({ data: clean });
       setOffers(updated);
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erro ao salvar.");

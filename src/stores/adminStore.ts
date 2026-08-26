@@ -48,14 +48,28 @@ interface AdminState {
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "glowup2026";
 
+function saveFeaturedToLocal(products: AdminProduct[]) {
+  const featuredIds = products.filter((p) => p.featured).map((p) => p.id);
+  try {
+    localStorage.setItem("glowup-featured-ids", JSON.stringify(featuredIds));
+  } catch { /* ignore */ }
+}
+
+export function getFeaturedIdsFromLocal(): string[] {
+  try {
+    const raw = localStorage.getItem("glowup-featured-ids");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
 async function syncToGitHub(products: AdminProduct[]) {
   if (!Array.isArray(products)) {
-    console.error("Tentativa de salvar dados invalidos no GitHub");
-    return;
+    throw new Error("Dados invalidos para salvar no GitHub.");
   }
   if (products.length === 0) {
-    console.error("Bloqueado: tentativa de salvar array vazio no GitHub");
-    return;
+    throw new Error("Bloqueado: tentativa de salvar array vazio no GitHub.");
   }
   const clean = products.map((p) => ({
     ...p,
@@ -63,14 +77,9 @@ async function syncToGitHub(products: AdminProduct[]) {
   }));
   const json = JSON.stringify(clean);
   if (json.length > 800000) {
-    alert("Arquivo muito grande para salvar no GitHub. Use links de imagem externos.");
-    return;
+    throw new Error("Arquivo muito grande para salvar no GitHub. Use links de imagem externos.");
   }
-  try {
-    await saveProductsGitHub(clean);
-  } catch (err) {
-    console.error("Erro ao salvar no GitHub:", err);
-  }
+  await saveProductsGitHub({ data: clean });
 }
 
 export const useAdminStore = create<AdminState>()(
@@ -95,9 +104,22 @@ export const useAdminStore = create<AdminState>()(
         set({ loading: true });
         try {
           const products = await fetchProductsGitHub();
+          const localProducts = get().products;
           if (Array.isArray(products) && products.length > 0) {
-            set({ products, loading: false });
-          } else if (get().products.length > 0) {
+            const merged = products.map((p) => {
+              const local = localProducts.find((lp) => lp.id === p.id);
+              if (local) {
+                return {
+                  ...p,
+                  featured: local.featured ?? p.featured,
+                  available: local.available ?? p.available,
+                };
+              }
+              return p;
+            });
+            set({ products: merged, loading: false });
+            saveFeaturedToLocal(merged);
+          } else if (localProducts.length > 0) {
             set({ loading: false });
           } else {
             set({ products: [], loading: false });
@@ -115,6 +137,7 @@ export const useAdminStore = create<AdminState>()(
         };
         const updated = [...get().products, newProduct];
         set({ products: updated });
+        saveFeaturedToLocal(updated);
         await syncToGitHub(updated);
       },
 
@@ -123,12 +146,14 @@ export const useAdminStore = create<AdminState>()(
           p.id === id ? { ...p, ...updates } : p
         );
         set({ products: updated });
+        saveFeaturedToLocal(updated);
         await syncToGitHub(updated);
       },
 
       deleteProduct: async (id) => {
         const updated = get().products.filter((p) => p.id !== id);
         set({ products: updated });
+        saveFeaturedToLocal(updated);
         await syncToGitHub(updated);
       },
     }),

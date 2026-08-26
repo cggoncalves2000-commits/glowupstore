@@ -75,7 +75,7 @@ function AdminBanners() {
       return;
     }
     try {
-      await saveBannersGitHub(clean);
+      await saveBannersGitHub({ data: clean });
       setBanners(updated);
     } catch (err) {
       console.error("Erro ao salvar banners:", err);

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
+import { toast } from "sonner";
 import { useAdminStore } from "@/stores/adminStore";
 import { CATEGORIES } from "@/lib/site";
 
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/admin/destaques")({
 
 function AdminDestaques() {
   const { products, updateProduct, loadProducts } = useAdminStore();
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadProducts();
@@ -17,8 +19,16 @@ function AdminDestaques() {
 
   const featuredCount = products.filter((p) => p.featured).length;
 
-  const toggleFeatured = (id: string, current: boolean) => {
-    updateProduct(id, { featured: !current });
+  const toggleFeatured = async (id: string, current: boolean) => {
+    setSavingId(id);
+    try {
+      await updateProduct(id, { featured: !current });
+      toast.success(current ? "Removido dos destaques" : "Adicionado aos destaques");
+    } catch {
+      toast.error("Erro ao salvar. Tente novamente.");
+    } finally {
+      setSavingId(null);
+    }
   };
 
   return (
@@ -82,11 +92,12 @@ function AdminDestaques() {
               {/* Toggle */}
               <button
                 onClick={() => toggleFeatured(p.id, p.featured)}
+                disabled={savingId === p.id}
                 className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border transition-all ${
                   p.featured
                     ? "border-accent bg-accent text-accent-foreground shadow-md"
                     : "border-border bg-background text-muted-foreground hover:border-accent hover:text-accent"
-                }`}
+                } ${savingId === p.id ? "opacity-50 cursor-wait" : ""}`}
                 aria-label={p.featured ? "Remover dos destaques" : "Adicionar aos destaques"}
               >
                 <Star className={`h-5 w-5 ${p.featured ? "fill-current" : ""}`} />

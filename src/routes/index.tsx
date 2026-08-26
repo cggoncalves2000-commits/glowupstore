@@ -12,6 +12,7 @@ import { fetchProductsGitHub } from "@/lib/github-products";
 import { fetchBannersGitHub } from "@/lib/github-banners";
 import { fetchOffersGitHub } from "@/lib/github-offers";
 import { fetchProducts } from "@/lib/shopify";
+import { getFeaturedIdsFromLocal } from "@/stores/adminStore";
 import { CATEGORIES } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
 import carrosel1 from "@/assets/carrosel 1.jpeg";
@@ -115,10 +116,21 @@ function Home() {
     queryFn: () => fetchProducts(24),
   });
 
-  const { data: adminProducts = [] } = useQuery({
+  const { data: rawAdminProducts = [] } = useQuery({
     queryKey: ["adminProducts"],
     queryFn: () => fetchProductsGitHub(),
   });
+
+  const adminProducts = useMemo(() => {
+    const localFeaturedIds = getFeaturedIdsFromLocal();
+    if (localFeaturedIds.length === 0) return rawAdminProducts;
+    return rawAdminProducts.map((p) => {
+      if (localFeaturedIds.includes(p.id) && !p.featured) {
+        return { ...p, featured: true };
+      }
+      return p;
+    });
+  }, [rawAdminProducts]);
 
   const { data: rawBanners = [] } = useQuery({
     queryKey: ["banners"],
@@ -204,7 +216,7 @@ function Home() {
           <div className="relative h-[500px] overflow-hidden rounded-lg md:h-[700px]">
             {banners.map((banner, i) => {
               const bannerLink = banner.productId
-                ? (Array.isArray(rawProducts) ? rawProducts.find((p) => p.id === banner.productId)?.buyLink : "") || banner.link
+                ? adminProducts.find((p) => p.id === banner.productId)?.buyLink || banner.link
                 : banner.link;
               return bannerLink ? (
                 <a key={banner.id} href={bannerLink} target="_blank" rel="noopener noreferrer">
