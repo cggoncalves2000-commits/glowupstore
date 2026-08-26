@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "id": "default-1",
+    "image": "/assets/carrosel%201-5lSNtdcr.jpeg",
+    "link": "https://glowupstore138.lojavirtualnuvem.com.br/produtos/glowblush-stick/",
+    "createdAt": 0,
+    "productId": "d457dcd8-bd84-46a7-bd89-7790e3db17a9"
+  },
+  {
+    "id": "default-2",
+    "image": "/assets/carrosel%202-DX6i-SAY.jpeg",
+    "link": "",
+    "createdAt": 0
+  },
+  {
+    "id": "default-3",
+    "image": "/assets/carrosel%203-Dlq8ryqx.jpeg",
+    "link": "",
+    "createdAt": 0
+  }
+]
