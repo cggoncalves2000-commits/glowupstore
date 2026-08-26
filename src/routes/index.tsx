@@ -202,9 +202,12 @@ function Home() {
       <section className="bg-sand">
         <div className="relative mx-auto max-w-7xl">
           <div className="relative h-[500px] overflow-hidden rounded-lg md:h-[700px]">
-            {banners.map((banner, i) => (
-              banner.link ? (
-                <a key={banner.id} href={banner.link} target="_blank" rel="noopener noreferrer">
+            {banners.map((banner, i) => {
+              const bannerLink = banner.productId
+                ? (Array.isArray(rawProducts) ? rawProducts.find((p) => p.id === banner.productId)?.buyLink : "") || banner.link
+                : banner.link;
+              return bannerLink ? (
+                <a key={banner.id} href={bannerLink} target="_blank" rel="noopener noreferrer">
                   <img
                     src={banner.image}
                     alt={`Banner ${i + 1}`}
@@ -222,8 +225,8 @@ function Home() {
                     i === currentSlide ? "opacity-100" : "opacity-0"
                   }`}
                 />
-              )
-            ))}
+              );
+            })}
 
             <button
               onClick={prevSlide}

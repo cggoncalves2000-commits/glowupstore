@@ -19,6 +19,7 @@ export interface Banner {
   id: string;
   image: string;
   link: string;
+  productId?: string;
   createdAt: number;
 }
 

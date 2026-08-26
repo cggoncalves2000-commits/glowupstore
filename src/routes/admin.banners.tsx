@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Loader2, Plus, Trash2, Camera, X, Check } from "lucide-react";
-import { type Banner } from "@/stores/adminStore";
+import { type Banner, type AdminProduct } from "@/stores/adminStore";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchBannersGitHub, saveBannersGitHub } from "@/lib/github-banners";
+import { fetchProductsGitHub } from "@/lib/github-products";
 import { compressImage } from "@/lib/compress-image";
 import carrosel1 from "@/assets/carrosel 1.jpeg";
 import carrosel2 from "@/assets/carrosel 2.jpeg";
@@ -24,20 +24,23 @@ const DEFAULTS: Banner[] = [
 function mergeDefaults(saved: Banner[]): Banner[] {
   return DEFAULTS.map((d) => {
     const existing = saved.find((b) => b.id === d.id);
-    return existing ? { ...d, link: existing.link, image: existing.image } : d;
+    return existing
+      ? { ...d, link: existing.link, productId: existing.productId, image: existing.image }
+      : d;
   }).concat(saved.filter((b) => !DEFAULTS.some((d) => d.id === b.id)));
 }
 
 function AdminBanners() {
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [products, setProducts] = useState<AdminProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formImage, setFormImage] = useState("");
-  const [formLink, setFormLink] = useState("");
+  const [formProductId, setFormProductId] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
-  const [editLink, setEditLink] = useState("");
+  const [editProductId, setEditProductId] = useState("");
   const [editingImage, setEditingImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const editFileRef = useRef<HTMLInputElement>(null);
@@ -45,8 +48,12 @@ function AdminBanners() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await fetchBannersGitHub();
-        setBanners(mergeDefaults(data));
+        const [bannerData, productData] = await Promise.all([
+          fetchBannersGitHub(),
+          fetchProductsGitHub(),
+        ]);
+        setBanners(mergeDefaults(bannerData));
+        setProducts(Array.isArray(productData) ? productData : []);
       } catch {
         setBanners([...DEFAULTS]);
       } finally {
@@ -78,18 +85,25 @@ function AdminBanners() {
     }
   };
 
+  const getProductLink = (productId: string) => {
+    const product = products.find((p) => p.id === productId);
+    return product?.buyLink || "";
+  };
+
   const handleAdd = () => {
     if (!formImage) return;
+    const link = getProductLink(formProductId);
     const newBanner: Banner = {
       id: crypto.randomUUID(),
       image: formImage,
-      link: formLink || "",
+      link,
+      productId: formProductId || undefined,
       createdAt: Date.now(),
     };
     const updated = [...banners, newBanner];
     persist(updated);
     setFormImage("");
-    setFormLink("");
+    setFormProductId("");
     setShowForm(false);
   };
 
@@ -115,8 +129,13 @@ function AdminBanners() {
     e.target.value = "";
   };
 
-  const handleEditLink = (id: string) => {
-    persist(banners.map((b) => (b.id === id ? { ...b, link: editLink } : b)));
+  const handleEditProduct = (id: string) => {
+    const link = getProductLink(editProductId);
+    persist(
+      banners.map((b) =>
+        b.id === id ? { ...b, link, productId: editProductId || undefined } : b
+      )
+    );
     setEditing(null);
   };
 
@@ -134,6 +153,9 @@ function AdminBanners() {
       alert("Erro ao processar imagem.");
     }
   };
+
+  const selectedProduct = products.find((p) => p.id === formProductId);
+  const editingProduct = products.find((p) => p.id === editProductId);
 
   return (
     <div>
@@ -182,14 +204,29 @@ function AdminBanners() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="link">Link ao clicar</Label>
-                <Input
-                  id="link"
-                  value={formLink}
-                  onChange={(e) => setFormLink(e.target.value)}
-                  placeholder="https://..."
-                  type="url"
-                />
+                <Label>Produto ao clicar</Label>
+                <select
+                  value={formProductId}
+                  onChange={(e) => setFormProductId(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="">Nenhum (sem link)</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title} — R$ {p.price}
+                    </option>
+                  ))}
+                </select>
+                {selectedProduct && (
+                  <p className="text-xs text-muted-foreground">
+                    Link: {selectedProduct.buyLink || "produto sem link de compra"}
+                  </p>
+                )}
+                {products.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Cadastre produtos primeiro na aba "Produtos"
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">
@@ -209,75 +246,94 @@ function AdminBanners() {
         </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {banners.map((b, idx) => (
-            <div key={b.id} className="group flex flex-col border border-border bg-card">
-              <div className="relative aspect-video overflow-hidden bg-secondary">
-                <img src={b.image} alt={`Banner ${idx + 1}`} className="h-full w-full object-cover" />
-                <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button
-                    onClick={() => { setEditingImage(b.id); setTimeout(() => editFileRef.current?.click(), 0); }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur transition-colors hover:bg-background"
-                    title="Trocar imagem"
-                  >
-                    <Camera className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setConfirmDelete(b.id)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-destructive backdrop-blur transition-colors hover:bg-background"
-                    title="Remover"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-              <div className="p-3 space-y-2">
-                {editing === b.id ? (
-                  <div className="flex gap-2">
-                    <Input
-                      value={editLink}
-                      onChange={(e) => setEditLink(e.target.value)}
-                      placeholder="https://..."
-                      type="url"
-                      className="h-8 text-xs"
-                    />
+          {banners.map((b, idx) => {
+            const linkedProduct = b.productId ? products.find((p) => p.id === b.productId) : null;
+            return (
+              <div key={b.id} className="group flex flex-col border border-border bg-card">
+                <div className="relative aspect-video overflow-hidden bg-secondary">
+                  <img src={b.image} alt={`Banner ${idx + 1}`} className="h-full w-full object-cover" />
+                  <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     <button
-                      onClick={() => handleEditLink(b.id)}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-accent text-accent-foreground"
+                      onClick={() => { setEditingImage(b.id); setTimeout(() => editFileRef.current?.click(), 0); }}
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur transition-colors hover:bg-background"
+                      title="Trocar imagem"
                     >
-                      <Check className="h-3.5 w-3.5" />
+                      <Camera className="h-3.5 w-3.5" />
                     </button>
                     <button
-                      onClick={() => setEditing(null)}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-secondary text-muted-foreground"
+                      onClick={() => setConfirmDelete(b.id)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-destructive backdrop-blur transition-colors hover:bg-background"
+                      title="Remover"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => { setEditing(b.id); setEditLink(b.link); }}
-                    className="w-full text-left text-xs text-muted-foreground hover:text-foreground truncate"
-                  >
-                    {b.link || "Clique para adicionar link"}
-                  </button>
+                </div>
+                <div className="p-3 space-y-2">
+                  {editing === b.id ? (
+                    <div className="space-y-2">
+                      <select
+                        value={editProductId}
+                        onChange={(e) => setEditProductId(e.target.value)}
+                        className="flex h-8 w-full rounded-md border border-border bg-background px-2 text-xs ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        <option value="">Nenhum (sem link)</option>
+                        {products.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.title}
+                          </option>
+                        ))}
+                      </select>
+                      {editingProduct && (
+                        <p className="text-[10px] text-muted-foreground">
+                          Link: {editingProduct.buyLink || "sem link"}
+                        </p>
+                      )}
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleEditProduct(b.id)}
+                          className="flex h-7 flex-1 items-center justify-center rounded bg-accent text-accent-foreground text-xs"
+                        >
+                          <Check className="h-3 w-3 mr-1" /> Salvar
+                        </button>
+                        <button
+                          onClick={() => setEditing(null)}
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-secondary text-muted-foreground"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setEditing(b.id); setEditProductId(b.productId || ""); }}
+                      className="w-full text-left text-xs text-muted-foreground hover:text-foreground truncate"
+                    >
+                      {linkedProduct
+                        ? `🔗 ${linkedProduct.title}`
+                        : b.link
+                          ? `🔗 ${b.link}`
+                          : "Clique para vincular um produto"}
+                    </button>
+                  )}
+                </div>
+
+                {confirmDelete === b.id && (
+                  <div className="border-t border-border p-3">
+                    <p className="text-xs text-muted-foreground mb-2">Remover este banner?</p>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(b.id)} className="flex-1" disabled={saving}>
+                        Sim, remover
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setConfirmDelete(null)} className="flex-1">
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
-
-              {confirmDelete === b.id && (
-                <div className="border-t border-border p-3">
-                  <p className="text-xs text-muted-foreground mb-2">Remover este banner?</p>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(b.id)} className="flex-1" disabled={saving}>
-                      Sim, remover
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setConfirmDelete(null)} className="flex-1">
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
       <input
