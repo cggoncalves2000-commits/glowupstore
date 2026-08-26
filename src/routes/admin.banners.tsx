@@ -23,12 +23,13 @@ const DEFAULTS: Banner[] = [
 ];
 
 function mergeDefaults(saved: Banner[]): Banner[] {
-  return DEFAULTS.map((d) => {
+  const defaults = DEFAULTS.map((d) => {
     const existing = saved.find((b) => b.id === d.id);
     return existing
       ? { ...d, link: existing.link, productId: existing.productId, image: existing.image }
-      : d;
-  }).concat(saved.filter((b) => !DEFAULTS.some((d) => d.id === b.id)));
+      : null;
+  }).filter(Boolean) as Banner[];
+  return defaults.concat(saved.filter((b) => !DEFAULTS.some((d) => d.id === b.id)));
 }
 
 function AdminBanners() {
