@@ -38,7 +38,8 @@ async function getContent(): Promise<string | null> {
     if (!res.ok) return null;
     const data = await res.json();
     if (data.encoding === "base64") {
-      return atob(data.content.replace(/\n/g, ""));
+      const decoded = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ""))));
+      return decoded;
     }
     return null;
   } catch {
