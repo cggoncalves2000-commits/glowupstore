@@ -56,15 +56,7 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
 
-export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProduct> {
-  const res = await fetch(`https://corsproxy.org/?${encodeURIComponent(url)}`, {
-    signal: AbortSignal.timeout(15000),
-  });
-
-  if (!res.ok) throw new Error("Nao foi possivel acessar a pagina do produto.");
-
-  const html = await res.text();
-
+function parseProduct(html: string): NuvemshopProduct {
   const jsonLd = parseJsonLd(html);
   if (jsonLd && jsonLd.title) return jsonLd;
 
@@ -72,4 +64,33 @@ export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProd
   if (og && og.title) return og;
 
   throw new Error("Nao foi possivel extrair as informacoes do produto. Verifique se o link e de um produto Nuvemshop.");
+}
+
+export async function scrapeNuvemshopProduct(url: string): Promise<NuvemshopProduct> {
+  const scrapeUrl = new URL("/api/scrape", window.location.origin);
+  scrapeUrl.searchParams.set("url", url);
+
+  const res = await fetch(scrapeUrl.toString());
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "Nao foi possivel acessar a pagina do produto.");
+  }
+
+  const html = await res.text();
+  return parseProduct(html);
+}
+
+export async function scrapeNuvemshopProductServer(url: string): Promise<NuvemshopProduct> {
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+    },
+    redirect: "follow",
+  });
+  if (!res.ok) throw new Error("Nao foi possivel acessar a pagina do produto.");
+
+  const html = await res.text();
+  return parseProduct(html);
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/lib/site";
-import { scrapeNuvemshopProduct } from "@/lib/nuvemshop";
+import { scrapeProduct } from "@/lib/scrape-server";
 
 export const Route = createFileRoute("/admin/produtos")({
   component: AdminProdutos,
@@ -72,7 +72,7 @@ function AdminProdutos() {
     setImporting(true);
     setImportError("");
     try {
-      const data = await scrapeNuvemshopProduct(importUrl);
+      const data = await scrapeProduct({ data: importUrl });
       setForm((f) => ({
         ...f,
         title: data.title || f.title,
