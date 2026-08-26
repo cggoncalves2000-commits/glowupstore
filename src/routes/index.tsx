@@ -216,28 +216,32 @@ function Home() {
         <div className="relative mx-auto max-w-7xl">
           <div className="relative h-[500px] overflow-hidden rounded-lg md:h-[700px]">
             {banners.map((banner, i) => {
-              const bannerLink = banner.productId
-                ? adminProducts.find((p) => p.id === banner.productId)?.buyLink || banner.link
-                : banner.link;
-              return bannerLink ? (
-                <a key={banner.id} href={bannerLink} target="_blank" rel="noopener noreferrer">
+              const linkedProduct = banner.productId
+                ? adminProducts.find((p) => p.id === banner.productId)
+                : null;
+              const bannerLink = linkedProduct?.buyLink || banner.link;
+              const handleClick = () => {
+                if (linkedProduct?.category) {
+                  setActiveCategory(linkedProduct.category);
+                  setActiveSection("categorias");
+                } else if (bannerLink) {
+                  window.open(bannerLink, "_blank", "noopener,noreferrer");
+                }
+              };
+              return (
+                <button
+                  key={banner.id}
+                  onClick={handleClick}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    i === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
+                  }`}
+                >
                   <img
                     src={banner.image}
                     alt={`Banner ${i + 1}`}
-                    className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
-                      i === currentSlide ? "opacity-100" : "opacity-0"
-                    }`}
+                    className="h-full w-full object-cover object-center"
                   />
-                </a>
-              ) : (
-                <img
-                  key={banner.id}
-                  src={banner.image}
-                  alt={`Banner ${i + 1}`}
-                  className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
-                    i === currentSlide ? "opacity-100" : "opacity-0"
-                  }`}
-                />
+                </button>
               );
             })}
 
