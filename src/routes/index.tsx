@@ -109,6 +109,7 @@ function Home() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<SectionId>("destaques");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
 
   const { data: products = [] } = useQuery({
@@ -203,6 +204,17 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    if (!highlightedProductId) return;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`highlight-${highlightedProductId}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [highlightedProductId]);
+
+  const clearHighlight = useCallback(() => setHighlightedProductId(null), []);
+
+  useEffect(() => {
     const el = document.getElementById(activeSection);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [activeSection]);
@@ -222,6 +234,7 @@ function Home() {
               const bannerLink = linkedProduct?.buyLink || banner.link;
               const handleClick = () => {
                 if (linkedProduct?.category) {
+                  setHighlightedProductId(linkedProduct.id);
                   setActiveCategory(linkedProduct.category);
                   setActiveSection("categorias");
                 } else if (bannerLink) {
@@ -364,15 +377,24 @@ function Home() {
                 {adminProducts
                   .filter((p) => p.available)
                   .filter((p) => p.category === activeCategory)
-                  .map((product, i) => (
-                    <div
-                      key={product.id}
-                      className="animate-fade-in-up"
-                      style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
-                    >
-                      <AdminProductCard product={product} />
-                    </div>
-                  ))}
+                  .map((product, i) => {
+                    const isHighlighted = highlightedProductId === product.id;
+                    return (
+                      <div
+                        key={product.id}
+                        id={`highlight-${product.id}`}
+                        onClick={isHighlighted ? clearHighlight : undefined}
+                        className={`animate-fade-in-up transition-all duration-500 ${
+                          isHighlighted
+                            ? "ring-4 ring-accent ring-offset-2 ring-offset-background scale-[1.03] cursor-pointer"
+                            : ""
+                        }`}
+                        style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
+                      >
+                        <AdminProductCard product={product} />
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </div>
