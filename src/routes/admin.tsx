@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
 import { useAdminStore } from "@/stores/adminStore";
-import { LayoutGrid, Star } from "lucide-react";
+import { Image, LayoutGrid, Star } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: ({ location }) => {
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/admin")({
 const SIDEBAR = [
   { label: "Produtos", href: "/admin/produtos", icon: LayoutGrid },
   { label: "Destaques", href: "/admin/destaques", icon: Star },
+  { label: "Banners", href: "/admin/banners", icon: Image },
 ];
 
 function AdminLayout() {

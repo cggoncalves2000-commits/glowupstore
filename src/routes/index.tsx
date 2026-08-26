@@ -10,6 +10,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { AdminProductCard } from "@/components/AdminProductCard";
 import { useAdminStore } from "@/stores/adminStore";
 import { fetchProductsGitHub } from "@/lib/github-products";
+import { fetchBannersGitHub } from "@/lib/github-banners";
 import { fetchProducts } from "@/lib/shopify";
 import { CATEGORIES, whatsappLink } from "@/lib/site";
 import { useCartSync } from "@/hooks/useCartSync";
@@ -105,29 +106,6 @@ function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
 
-  const goToSlide = useCallback((index: number) => {
-    setCurrentSlide(index);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 7000);
-  }, []);
-
-  const nextSlide = useCallback(() => {
-    goToSlide((currentSlide + 1) % HERO_SLIDES.length);
-  }, [currentSlide, goToSlide]);
-
-  const prevSlide = useCallback(() => {
-    goToSlide((currentSlide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
-  }, [currentSlide, goToSlide]);
-
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 7000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
-
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
     queryFn: () => fetchProducts(24),
@@ -137,6 +115,37 @@ function Home() {
     queryKey: ["adminProducts"],
     queryFn: () => fetchProductsGitHub(),
   });
+
+  const { data: banners = [] } = useQuery({
+    queryKey: ["banners"],
+    queryFn: () => fetchBannersGitHub(),
+  });
+
+  const slideCount = banners.length > 0 ? banners.length : HERO_SLIDES.length;
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentSlide(index);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slideCount);
+    }, 7000);
+  }, [slideCount]);
+
+  const nextSlide = useCallback(() => {
+    goToSlide((currentSlide + 1) % slideCount);
+  }, [currentSlide, goToSlide, slideCount]);
+
+  const prevSlide = useCallback(() => {
+    goToSlide((currentSlide - 1 + slideCount) % slideCount);
+  }, [currentSlide, goToSlide, slideCount]);
+
+  useEffect(() => {
+    setCurrentSlide(0);
+    timerRef.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slideCount);
+    }, 7000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [slideCount]);
 
   const handleNavigate = useCallback((id: SectionId) => {
     setActiveSection(id);
@@ -175,16 +184,30 @@ function Home() {
         <div className="relative mx-auto max-w-7xl">
           {/* Image area */}
           <div className="relative h-[500px] overflow-hidden rounded-lg md:h-[700px]">
-            {HERO_SLIDES.map((slide, i) => (
-              <img
-                key={i}
-                src={slide.src}
-                alt={slide.alt}
-                className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
-                  i === currentSlide ? "opacity-100" : "opacity-0"
-                }`}
-              />
-            ))}
+            {banners.length > 0 ? (
+              banners.map((banner, i) => (
+                <a key={banner.id} href={banner.link} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={banner.image}
+                    alt={`Banner ${i + 1}`}
+                    className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+                      i === currentSlide ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                </a>
+              ))
+            ) : (
+              HERO_SLIDES.map((slide, i) => (
+                <img
+                  key={i}
+                  src={slide.src}
+                  alt={slide.alt}
+                  className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+                    i === currentSlide ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ))
+            )}
 
             {/* Arrows */}
             <button
@@ -205,7 +228,7 @@ function Home() {
 
           {/* Dots */}
           <div className="flex justify-center pb-6 pt-4">
-            {HERO_SLIDES.map((_, i) => (
+            {(banners.length > 0 ? banners : HERO_SLIDES).map((_: unknown, i: number) => (
               <button
                 key={i}
                 onClick={() => goToSlide(i)}

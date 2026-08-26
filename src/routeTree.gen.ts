@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminDestaquesRouteImport } from './routes/admin.destaques'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminProdutosRouteImport } from './routes/admin.produtos'
@@ -25,6 +26,11 @@ const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminBannersRoute = AdminBannersRouteImport.update({
+  id: '/banners',
+  path: '/banners',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminDestaquesRoute = AdminDestaquesRouteImport.update({
   id: '/destaques',
@@ -50,6 +56,7 @@ const ProdutoHandleRoute = ProdutoHandleRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/destaques': typeof AdminDestaquesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/destaques': typeof AdminDestaquesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/destaques': typeof AdminDestaquesRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/produtos': typeof AdminProdutosRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/admin/banners'
     | '/admin/destaques'
     | '/admin/login'
     | '/admin/produtos'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/admin/banners'
     | '/admin/destaques'
     | '/admin/login'
     | '/admin/produtos'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/admin/banners'
     | '/admin/destaques'
     | '/admin/login'
     | '/admin/produtos'
@@ -120,6 +132,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/banners': {
+      id: '/admin/banners'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AdminBannersRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/destaques': {
       id: '/admin/destaques'
@@ -153,12 +172,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminBannersRoute: typeof AdminBannersRoute
   AdminDestaquesRoute: typeof AdminDestaquesRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminProdutosRoute: typeof AdminProdutosRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBannersRoute: AdminBannersRoute,
   AdminDestaquesRoute: AdminDestaquesRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminProdutosRoute: AdminProdutosRoute,

@@ -15,6 +15,13 @@ export interface AdminProduct {
   createdAt: number;
 }
 
+export interface Banner {
+  id: string;
+  image: string;
+  link: string;
+  createdAt: number;
+}
+
 interface AdminState {
   isAuthenticated: boolean;
   login: (user: string, pass: string) => boolean;
