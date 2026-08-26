@@ -64,18 +64,14 @@ function AdminBanners() {
 
   const persist = async (updated: Banner[]) => {
     setSaving(true);
-    const clean = updated.map((b) => ({
-      ...b,
-      image: b.image.startsWith("data:") ? "" : b.image,
-    }));
-    const json = JSON.stringify(clean);
-    if (json.length > 800000) {
+    const json = JSON.stringify(updated);
+    if (json.length > 900000) {
       alert("Arquivo muito grande. Use links de imagem externos.");
       setSaving(false);
       return;
     }
     try {
-      await saveBannersGitHub({ data: clean });
+      await saveBannersGitHub({ data: updated });
       setBanners(updated);
     } catch (err) {
       console.error("Erro ao salvar banners:", err);
