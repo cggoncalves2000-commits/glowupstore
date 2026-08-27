@@ -317,7 +317,7 @@ function Home() {
       {/* OFERTAS - sempre visivel abaixo do hero */}
       {offers.map((offer) => (
         <section key={offer.id} className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="relative overflow-hidden rounded-lg">
+            <div className="relative overflow-hidden rounded-2xl">
             <img
               src={offer.image}
               alt={offer.title}
