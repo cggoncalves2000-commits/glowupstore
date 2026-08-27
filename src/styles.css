@@ -286,6 +286,12 @@
   animation: marquee 25s linear infinite;
 }
 
+@media (max-width: 768px) {
+  .animate-marquee {
+    animation-duration: 15s;
+  }
+}
+
 @utility animate-fade-in-up {
   animation: fade-in-up 0.7s ease-out both;
 }
