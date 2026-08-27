@@ -439,42 +439,9 @@ function Home() {
         </section>
       )}
 
-      {/* AVALIACOES */}
-      {activeSection === "avaliacoes" && (
-        <section id="avaliacoes" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <span className="eyebrow text-accent">Avaliacoes</span>
-          <h2 className="mt-2 font-display text-4xl md:text-5xl">O que dizem as clientes</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {TESTIMONIALS.map((t, i) => (
-              <div
-                key={i}
-                className={`group relative border border-border bg-card p-6 transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 animate-fade-in-up`}
-                style={{ animationDelay: `${i * 150}ms` }}
-              >
-                <Quote className="absolute right-4 top-4 h-8 w-8 text-accent/10 transition-colors duration-300 group-hover:text-accent/25" />
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-accent to-primary text-sm font-medium text-accent-foreground">
-                    {t.initials}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.product}</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex gap-0.5">
-                  {Array.from({ length: t.rating }).map((_, s) => (
-                    <Star key={s} className="h-4 w-4 fill-accent text-accent" />
-                  ))}
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* SOBRE A GLOW UP */}
-      <section className="bg-sand border-t border-border">
+      {activeSection === "sobrenos" && (
+      <section id="sobrenos" className="bg-sand border-t border-border">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
           <img
             src={logo}
@@ -531,6 +498,7 @@ function Home() {
           </div>
         </div>
       </section>
+      )}
 
       <SiteFooter />
       <WhatsAppFloat />

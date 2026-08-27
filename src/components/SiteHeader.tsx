@@ -2,12 +2,12 @@ import { Link } from "@tanstack/react-router";
 import { SITE } from "@/lib/site";
 import logo from "@/assets/favicon.jpg";
 
-export type SectionId = "destaques" | "categorias" | "avaliacoes";
+export type SectionId = "destaques" | "categorias" | "sobrenos";
 
 const NAV = [
   { label: "Destaques", id: "destaques" as const },
   { label: "Categorias", id: "categorias" as const },
-  { label: "Avaliacoes", id: "avaliacoes" as const },
+  { label: "Sobre nos", id: "sobrenos" as const },
 ];
 
 interface SiteHeaderProps {
