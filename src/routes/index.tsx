@@ -382,7 +382,7 @@ function Home() {
                 </div>
               )}
             </div>
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-3 gap-4 md:grid-cols-4">
               {visible.map((product, i) => (
                 <div
                   key={product.id}
