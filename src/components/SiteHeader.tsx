@@ -17,7 +17,7 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ activeSection, onNavigate }: SiteHeaderProps) {
   return (
-    <header className="glass sticky top-0 z-40 border-b border-border/50">
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
       <div className="relative mx-auto flex h-16 max-w-7xl items-center px-4 md:px-8">
         <Link to="/" className="group flex items-center gap-2.5 leading-none">
           <img src={logo} alt="Glow Up Store" className="h-9 w-9 rounded-full object-cover shadow-md transition-shadow group-hover:shadow-lg" />
