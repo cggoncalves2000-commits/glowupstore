@@ -472,6 +472,69 @@ function Home() {
         </section>
       )}
 
+      {/* SOBRE A GLOW UP */}
+      <section className="bg-sand border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+          <div className="grid gap-10 md:grid-cols-2 md:items-center">
+            <div className="relative overflow-hidden rounded-lg">
+              <img
+                src="https://images.pexels.com/photos/3736520/pexels-photo-3736520.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                alt="Glow Up Store - Beleza e autocuidado"
+                width={1260}
+                height={750}
+                loading="lazy"
+                className="h-[350px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[500px]"
+              />
+            </div>
+            <div>
+              <span className="eyebrow text-accent">Sobre nos</span>
+              <h2 className="mt-3 font-display text-3xl leading-tight md:text-4xl">
+                ✨ Muito mais que beleza.<br />
+                <span className="text-accent">Seu brilho, sua evolucao.</span>
+              </h2>
+              <p className="mt-6 text-muted-foreground leading-relaxed">
+                A Glow Up Store nasceu com um proposito: transformar o autocuidado em uma
+                experiencia de confianca, beleza e bem-estar.
+              </p>
+              <p className="mt-4 text-muted-foreground leading-relaxed">
+                Acreditamos que beleza nao e sobre seguir padroes. E sobre se cuidar, se
+                valorizar e se sentir bem com quem voce e. 💗
+              </p>
+
+              <div className="mt-8 space-y-5">
+                <div className="rounded-lg bg-background border border-border p-4">
+                  <h3 className="font-display text-lg">💗 O que significa Glow Up?</h3>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    Para nos, Glow Up significa evolucao. E descobrir novas versoes de si
+                    mesma, cuidar da autoestima e deixar sua propria luz aparecer.
+                  </p>
+                </div>
+                <div className="rounded-lg bg-background border border-border p-4">
+                  <h3 className="font-display text-lg">🛍️ Mais que produtos</h3>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    Cada produto e escolhido pensando em voce e na sua rotina. Buscamos unir
+                    qualidade, praticidade e beleza para tornar seus momentos de autocuidado
+                    ainda mais especiais.
+                  </p>
+                </div>
+                <div className="rounded-lg bg-background border border-border p-4">
+                  <h3 className="font-display text-lg">🚀 Estamos apenas comecando</h3>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    A Glow Up esta crescendo, evoluindo e preparando muitas novidades para
+                    voce. Queremos ser mais do que uma loja: queremos fazer parte da sua
+                    jornada de cuidado, confianca e evolucao.
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-8 font-display text-xl text-accent">
+                ✨ Glow Up Store — Sua beleza. Sua evolucao. Seu brilho.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <SiteFooter />
       <WhatsAppFloat />
     </div>
