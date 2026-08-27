@@ -17,10 +17,16 @@ export function whatsappLink(message?: string) {
   return `https://wa.me/${SITE.whatsappNumber}?text=${text}`;
 }
 
+import saude from "@/assets/cat-saude.jpeg";
+import cabelo from "@/assets/cat-cabelo.jpeg";
+import maquiagem from "@/assets/cat-maquiagem.jpeg";
+import beleza from "@/assets/cat-beleza.jpeg";
+import cuidados from "@/assets/cat-cuidados.jpeg";
+
 export const CATEGORIES = [
-  { label: "Saude", query: "saude", description: "Bem-estar e saude", image: "/cat-saude.jpg" },
-  { label: "Produtos De Cabelo", query: "cabelo", description: "Forca & brilho", image: "/cat-cabelo.jpg" },
-  { label: "Maquiagens", query: "maquiagem", description: "Alta cobertura", image: "/cat-maquiagem.jpg" },
-  { label: "Beleza", query: "beleza", description: "Produtos de beleza", image: "/cat-beleza.jpg" },
-  { label: "Cuidados", query: "cuidados", description: "Cuidados diarios", image: "/cat-cuidados.jpg" },
+  { label: "Saude", query: "saude", description: "Bem-estar e saude", image: saude },
+  { label: "Produtos De Cabelo", query: "cabelo", description: "Forca & brilho", image: cabelo },
+  { label: "Maquiagens", query: "maquiagem", description: "Alta cobertura", image: maquiagem },
+  { label: "Beleza", query: "beleza", description: "Produtos de beleza", image: beleza },
+  { label: "Cuidados", query: "cuidados", description: "Cuidados diarios", image: cuidados },
 ];

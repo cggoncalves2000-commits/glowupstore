@@ -381,7 +381,6 @@ function Home() {
           <div className="mt-8 grid grid-cols-3 gap-4 md:grid-cols-5">
             {CATEGORIES.map((cat) => {
               const active = activeCategory === cat.query;
-              const [imgError, setImgError] = useState(false);
               return (
                 <button
                   key={cat.query}
@@ -392,19 +391,12 @@ function Home() {
                       : "border-border bg-background hover:border-accent hover:shadow-sm"
                   }`}
                 >
-                  <div className="aspect-square w-full overflow-hidden rounded-xl bg-gradient-to-br from-accent/20 to-primary/20">
-                    {!imgError ? (
-                      <img
-                        src={cat.image}
-                        alt={cat.label}
-                        onError={() => setImgError(true)}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <span className="font-display text-3xl text-accent/60">{cat.label.charAt(0)}</span>
-                      </div>
-                    )}
+                  <div className="aspect-square w-full overflow-hidden rounded-xl">
+                    <img
+                      src={cat.image}
+                      alt={cat.label}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
                   </div>
                   <span className={`text-xs font-medium md:text-sm ${active ? "text-primary" : "text-foreground"}`}>
                     {cat.label}
