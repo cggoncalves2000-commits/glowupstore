@@ -64,7 +64,7 @@ function ProductPage() {
 
   return (
     <div className="min-h-screen">
-      <SiteHeader />
+      <SiteHeader activeSection="destaques" onNavigate={() => {}} />
 
       <main className="mx-auto max-w-7xl px-4 py-10 md:px-8">
         <Link
