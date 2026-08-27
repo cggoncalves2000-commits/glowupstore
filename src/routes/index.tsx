@@ -112,6 +112,7 @@ function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
   const [featuredPage, setFeaturedPage] = useState(0);
+  const [categoryPage, setCategoryPage] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
   const ITEMS_PER_ROW = 2;
 
@@ -216,6 +217,10 @@ function Home() {
   }, [highlightedProductId]);
 
   const clearHighlight = useCallback(() => setHighlightedProductId(null), []);
+
+  useEffect(() => {
+    setCategoryPage(0);
+  }, [activeCategory]);
 
   useEffect(() => {
     const el = document.getElementById(activeSection);
@@ -434,40 +439,63 @@ function Home() {
           </div>
 
           <div className="mt-8">
-            {activeCategory && (
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {filtered.map((product, i) => (
-                  <div
-                    key={product.node.id}
-                    className="animate-fade-in-up"
-                    style={{ animationDelay: `${Math.min(i * 80, 400)}ms` }}
-                  >
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-                {adminProducts
-                  .filter((p) => p.available)
-                  .filter((p) => p.category === activeCategory)
-                  .map((product, i) => {
-                    const isHighlighted = highlightedProductId === product.id;
-                    return (
-                      <div
-                        key={product.id}
-                        id={`highlight-${product.id}`}
-                        onClick={isHighlighted ? clearHighlight : undefined}
-                        className={`animate-fade-in-up rounded-sm transition-all duration-500 ${
-                          isHighlighted
-                            ? "animate-glow-pulse cursor-pointer"
-                            : ""
-                        }`}
-                        style={{ animationDelay: `${Math.min((filtered.length + i) * 80, 400)}ms` }}
+            {activeCategory && (() => {
+              const shopifyProducts = filtered.map((product) => ({
+                id: product.node.id,
+                type: "shopify" as const,
+                product,
+              }));
+              const adminCategoryProducts = adminProducts
+                .filter((p) => p.available)
+                .filter((p) => p.category === activeCategory)
+                .map((product) => ({
+                  id: product.id,
+                  type: "admin" as const,
+                  product,
+                }));
+              const allProducts = [...shopifyProducts, ...adminCategoryProducts];
+              const totalPages = Math.ceil(allProducts.length / ITEMS_PER_ROW);
+              const start = categoryPage * ITEMS_PER_ROW;
+              const visible = allProducts.slice(start, start + ITEMS_PER_ROW);
+
+              return (
+                <>
+                  {totalPages > 1 && (
+                    <div className="mb-4 flex justify-end gap-2">
+                      <button
+                        onClick={() => setCategoryPage((p) => Math.max(0, p - 1))}
+                        disabled={categoryPage === 0}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition-all hover:border-accent hover:bg-accent/5 disabled:opacity-30"
                       >
-                        <AdminProductCard product={product} />
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => setCategoryPage((p) => Math.min(totalPages - 1, p + 1))}
+                        disabled={categoryPage === totalPages - 1}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition-all hover:border-accent hover:bg-accent/5 disabled:opacity-30"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                    {visible.map((item, i) => (
+                      <div
+                        key={item.id}
+                        className="animate-fade-in-up"
+                        style={{ animationDelay: `${Math.min(i * 80, 400)}ms` }}
+                      >
+                        {item.type === "shopify" ? (
+                          <ProductCard product={item.product} />
+                        ) : (
+                          <AdminProductCard product={item.product} />
+                        )}
                       </div>
-                    );
-                  })}
-              </div>
-            )}
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </section>
 
