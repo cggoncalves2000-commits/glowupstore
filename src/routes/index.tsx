@@ -18,6 +18,7 @@ import { useCartSync } from "@/hooks/useCartSync";
 import carrosel1 from "@/assets/carrosel 1.jpeg";
 import carrosel2 from "@/assets/carrosel 2.jpeg";
 import carrosel3 from "@/assets/carrosel 3.jpeg";
+import logo from "@/assets/favicon.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -476,14 +477,14 @@ function Home() {
       <section className="bg-sand border-t border-border">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
-            <div className="relative overflow-hidden rounded-lg">
+            <div className="flex justify-center">
               <img
-                src="https://images.pexels.com/photos/3736520/pexels-photo-3736520.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                src={logo}
                 alt="Glow Up Store - Beleza e autocuidado"
-                width={1260}
-                height={750}
+                width={500}
+                height={500}
                 loading="lazy"
-                className="h-[350px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[500px]"
+                className="h-[300px] w-[300px] rounded-full object-cover shadow-lg transition-transform duration-700 hover:scale-105 md:h-[400px] md:w-[400px]"
               />
             </div>
             <div>
