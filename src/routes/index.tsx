@@ -378,20 +378,37 @@ function Home() {
               <h2 className="mt-2 font-display text-4xl md:text-5xl">Escolha por necessidade</h2>
             </div>
           </div>
-          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-5">
+          <div className="mt-8 grid grid-cols-3 gap-4 md:grid-cols-5">
             {CATEGORIES.map((cat) => {
               const active = activeCategory === cat.query;
+              const [imgError, setImgError] = useState(false);
               return (
                 <button
                   key={cat.query}
                   onClick={() => setActiveCategory(active ? null : cat.query)}
-                  className={`rounded-full border px-4 py-3 text-left text-sm font-medium transition-all duration-200 ${
+                  className={`group flex flex-col items-center gap-2 rounded-2xl border-2 p-3 transition-all duration-200 ${
                     active
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background text-foreground hover:border-accent hover:bg-accent/5"
+                      ? "border-primary bg-primary/10 shadow-md"
+                      : "border-border bg-background hover:border-accent hover:shadow-sm"
                   }`}
                 >
-                  {cat.label}
+                  <div className="aspect-square w-full overflow-hidden rounded-xl bg-gradient-to-br from-accent/20 to-primary/20">
+                    {!imgError ? (
+                      <img
+                        src={cat.image}
+                        alt={cat.label}
+                        onError={() => setImgError(true)}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <span className="font-display text-3xl text-accent/60">{cat.label.charAt(0)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className={`text-xs font-medium md:text-sm ${active ? "text-primary" : "text-foreground"}`}>
+                    {cat.label}
+                  </span>
                 </button>
               );
             })}

@@ -18,9 +18,9 @@ export function whatsappLink(message?: string) {
 }
 
 export const CATEGORIES = [
-  { label: "Saude", query: "saude", description: "Bem-estar e saude" },
-  { label: "Produtos De Cabelo", query: "cabelo", description: "Forca & brilho" },
-  { label: "Maquiagens", query: "maquiagem", description: "Alta cobertura" },
-  { label: "Beleza", query: "beleza", description: "Produtos de beleza" },
-  { label: "Cuidados", query: "cuidados", description: "Cuidados diarios" },
+  { label: "Saude", query: "saude", description: "Bem-estar e saude", image: "/cat-saude.jpg" },
+  { label: "Produtos De Cabelo", query: "cabelo", description: "Forca & brilho", image: "/cat-cabelo.jpg" },
+  { label: "Maquiagens", query: "maquiagem", description: "Alta cobertura", image: "/cat-maquiagem.jpg" },
+  { label: "Beleza", query: "beleza", description: "Produtos de beleza", image: "/cat-beleza.jpg" },
+  { label: "Cuidados", query: "cuidados", description: "Cuidados diarios", image: "/cat-cuidados.jpg" },
 ];
