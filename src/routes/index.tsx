@@ -348,8 +348,7 @@ function Home() {
       ))}
 
       {/* DESTAQUES */}
-      {activeSection === "destaques" && (
-        <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+      <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
           <div className="flex items-end justify-between gap-4">
             <div>
               <span className="eyebrow text-accent">Destaques</span>
@@ -370,11 +369,9 @@ function Home() {
               ))}
           </div>
         </section>
-      )}
 
       {/* CATEGORIAS */}
-      {activeSection === "categorias" && (
-        <section id="categorias" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+      <section id="categorias" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
           <div className="flex items-end justify-between gap-4">
             <div>
               <span className="eyebrow text-accent">Categorias</span>
@@ -437,10 +434,8 @@ function Home() {
             )}
           </div>
         </section>
-      )}
 
       {/* SOBRE A GLOW UP */}
-      {activeSection === "sobrenos" && (
       <section id="sobrenos" className="bg-sand border-t border-border">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
           <img
@@ -498,7 +493,6 @@ function Home() {
           </div>
         </div>
       </section>
-      )}
 
       <SiteFooter />
       <WhatsAppFloat />
