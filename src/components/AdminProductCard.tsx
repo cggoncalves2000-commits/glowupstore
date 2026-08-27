@@ -27,14 +27,6 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-        {!product.available && (
-          <span className="eyebrow absolute left-0 top-4 bg-ink px-3 py-1 text-ink-foreground">
-            Esgotado
-          </span>
-        )}
-        <span className="eyebrow absolute right-0 top-4 bg-primary px-3 py-1 text-primary-foreground">
-          Novo
-        </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">

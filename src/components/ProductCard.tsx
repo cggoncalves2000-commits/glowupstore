@@ -57,17 +57,6 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-        {hasDiscount && (
-          <span className="eyebrow absolute left-0 top-4 bg-accent px-3 py-1 text-accent-foreground shadow-lg">
-            Oferta
-          </span>
-        )}
-        {selectedVariant && !selectedVariant.availableForSale && (
-          <span className="eyebrow absolute left-0 top-4 bg-ink px-3 py-1 text-ink-foreground">
-            Esgotado
-          </span>
-        )}
-
         {/* Quick view hint on hover */}
         <span className="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white opacity-0 transition-all duration-300 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0">
           Ver detalhes
