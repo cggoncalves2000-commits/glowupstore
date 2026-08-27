@@ -475,24 +475,20 @@ function Home() {
 
       {/* SOBRE A GLOW UP */}
       <section className="bg-sand border-t border-border">
-        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <div className="grid gap-10 md:grid-cols-2 md:items-center">
-            <div className="flex justify-center">
-              <img
-                src={logo}
-                alt="Glow Up Store - Beleza e autocuidado"
-                width={500}
-                height={500}
-                loading="lazy"
-                className="h-[300px] w-[300px] rounded-full object-cover shadow-lg transition-transform duration-700 hover:scale-105 md:h-[400px] md:w-[400px]"
-              />
-            </div>
-            <div>
-              <span className="eyebrow text-accent">Sobre nos</span>
-              <h2 className="mt-3 font-display text-3xl leading-tight md:text-4xl">
-                ✨ Muito mais que beleza.<br />
-                <span className="text-accent">Seu brilho, sua evolucao.</span>
-              </h2>
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-8 md:py-24">
+          <img
+            src={logo}
+            alt="Glow Up Store - Beleza e autocuidado"
+            width={500}
+            height={500}
+            loading="lazy"
+            className="mx-auto h-[200px] w-[200px] rounded-full object-cover shadow-lg transition-transform duration-700 hover:scale-105 md:h-[250px] md:w-[250px]"
+          />
+          <span className="eyebrow text-accent">Sobre nos</span>
+          <h2 className="mt-3 font-display text-3xl leading-tight md:text-4xl">
+            ✨ Muito mais que beleza.<br />
+            <span className="text-accent">Seu brilho, sua evolucao.</span>
+          </h2>
               <p className="mt-6 text-muted-foreground leading-relaxed">
                 A Glow Up Store nasceu com um proposito: transformar o autocuidado em uma
                 experiencia de confianca, beleza e bem-estar.
@@ -531,8 +527,6 @@ function Home() {
               <p className="mt-8 font-display text-xl text-accent">
                 ✨ Glow Up Store — Sua beleza. Sua evolucao. Seu brilho.
               </p>
-            </div>
-          </div>
         </div>
       </section>
 
