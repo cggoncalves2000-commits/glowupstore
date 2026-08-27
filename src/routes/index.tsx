@@ -111,7 +111,9 @@ function Home() {
   const [activeSection, setActiveSection] = useState<SectionId>("destaques");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
+  const [featuredPage, setFeaturedPage] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
+  const ITEMS_PER_ROW = 4;
 
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
@@ -348,17 +350,40 @@ function Home() {
       ))}
 
       {/* DESTAQUES */}
-      <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <span className="eyebrow text-accent">Destaques</span>
-              <h2 className="mt-2 font-display text-4xl md:text-5xl">Produtos em destaque</h2>
+      {(() => {
+        const featured = adminProducts.filter((p) => p.available && p.featured);
+        const totalPages = Math.ceil(featured.length / ITEMS_PER_ROW);
+        const start = featuredPage * ITEMS_PER_ROW;
+        const visible = featured.slice(start, start + ITEMS_PER_ROW);
+
+        return (
+          <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <span className="eyebrow text-accent">Destaques</span>
+                <h2 className="mt-2 font-display text-4xl md:text-5xl">Produtos em destaque</h2>
+              </div>
+              {totalPages > 1 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setFeaturedPage((p) => Math.max(0, p - 1))}
+                    disabled={featuredPage === 0}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition-all hover:border-accent hover:bg-accent/5 disabled:opacity-30 disabled:hover:border-border disabled:hover:bg-background"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => setFeaturedPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={featuredPage === totalPages - 1}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition-all hover:border-accent hover:bg-accent/5 disabled:opacity-30 disabled:hover:border-border disabled:hover:bg-background"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {adminProducts
-              .filter((p) => p.available && p.featured)
-              .map((product, i) => (
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {visible.map((product, i) => (
                 <div
                   key={product.id}
                   className="animate-fade-in-up"
@@ -367,8 +392,10 @@ function Home() {
                   <AdminProductCard product={product} />
                 </div>
               ))}
-          </div>
-        </section>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* CATEGORIAS */}
       <section id="categorias" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
