@@ -311,6 +311,41 @@ function Home() {
         </div>
       </section>
 
+      {/* OFERTAS - sempre visivel abaixo do hero */}
+      {offers.map((offer) => (
+        <section key={offer.id} className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
+          <div className="relative overflow-hidden rounded-lg">
+            <img
+              src={offer.image}
+              alt={offer.title}
+              width={1600}
+              height={704}
+              loading="lazy"
+              className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
+              {offer.eyebrow && <span className="eyebrow text-rose-soft">{offer.eyebrow}</span>}
+              <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
+                {offer.title}
+              </h2>
+              {offer.buttonText && offer.buttonLink && (
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    asChild
+                    className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
+                  >
+                    <a href={offer.buttonLink} target="_blank" rel="noopener noreferrer">
+                      {offer.buttonText}
+                    </a>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      ))}
+
       {/* DESTAQUES */}
       {activeSection === "destaques" && (
         <section id="destaques" className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
@@ -402,41 +437,6 @@ function Home() {
           </div>
         </section>
       )}
-
-      {/* OFERTAS */}
-      {activeSection === "ofertas" && offers.map((offer) => (
-        <section key={offer.id} id="ofertas" className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-20">
-          <div className="relative overflow-hidden rounded-lg">
-            <img
-              src={offer.image}
-              alt={offer.title}
-              width={1600}
-              height={704}
-              loading="lazy"
-              className="h-[280px] w-full object-cover transition-transform duration-700 hover:scale-105 md:h-[340px]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/50 to-transparent" />
-            <div className="absolute inset-0 flex flex-col justify-center gap-4 px-6 md:px-14">
-              {offer.eyebrow && <span className="eyebrow text-rose-soft">{offer.eyebrow}</span>}
-              <h2 className="max-w-sm font-display text-4xl leading-tight text-ink-foreground md:text-5xl">
-                {offer.title}
-              </h2>
-              {offer.buttonText && offer.buttonLink && (
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    asChild
-                    className="bg-rose text-accent-foreground shadow-lg shadow-rose/25 transition-all duration-300 hover:bg-rose/90 hover:shadow-xl hover:-translate-y-0.5"
-                  >
-                    <a href={offer.buttonLink} target="_blank" rel="noopener noreferrer">
-                      {offer.buttonText}
-                    </a>
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-      ))}
 
       {/* AVALIACOES */}
       {activeSection === "avaliacoes" && (

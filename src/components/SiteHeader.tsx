@@ -2,12 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { SITE } from "@/lib/site";
 import logo from "@/assets/favicon.jpg";
 
-export type SectionId = "destaques" | "categorias" | "ofertas" | "avaliacoes";
+export type SectionId = "destaques" | "categorias" | "avaliacoes";
 
 const NAV = [
   { label: "Destaques", id: "destaques" as const },
   { label: "Categorias", id: "categorias" as const },
-  { label: "Ofertas", id: "ofertas" as const },
   { label: "Avaliacoes", id: "avaliacoes" as const },
 ];
 
