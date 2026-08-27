@@ -113,7 +113,7 @@ function Home() {
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
   const [featuredPage, setFeaturedPage] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
-  const ITEMS_PER_ROW = 4;
+  const ITEMS_PER_ROW = 2;
 
   const { data: products = [] } = useQuery({
     queryKey: ["products"],
@@ -382,7 +382,7 @@ function Home() {
                 </div>
               )}
             </div>
-            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
               {visible.map((product, i) => (
                 <div
                   key={product.id}
