@@ -1,4 +1,4 @@
-import { MessageCircle, ShoppingBag, Star } from "lucide-react";
+import { ShoppingBag, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { whatsappLink } from "@/lib/site";
 import type { AdminProduct } from "@/stores/adminStore";
@@ -14,8 +14,8 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
   const reviews = Math.floor(Math.random() * 500) + 50;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden border border-border bg-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1 rounded-xl">
-      <div className="relative block aspect-square overflow-hidden bg-secondary">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1">
+      <div className="relative block aspect-[4/5] overflow-hidden bg-secondary">
         {product.image ? (
           <img
             src={product.image}
@@ -39,14 +39,14 @@ export function AdminProductCard({ product }: { product: AdminProduct }) {
         <div className="mt-2 flex items-center gap-1">
           <div className="flex">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
             ))}
           </div>
-          <span className="text-xs text-muted-foreground">({reviews})</span>
+          <span className="text-[11px] text-muted-foreground">({reviews})</span>
         </div>
 
         <div className="mt-1.5">
-          <span className="text-lg font-bold text-primary">
+          <span className="text-base font-bold text-primary">
             {formatPrice(product.price)}
           </span>
         </div>
