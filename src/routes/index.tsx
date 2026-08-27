@@ -107,7 +107,7 @@ const TESTIMONIALS = [
 
 function Home() {
   useCartSync();
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(CATEGORIES[0].query);
   const [activeSection, setActiveSection] = useState<SectionId>("destaques");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
